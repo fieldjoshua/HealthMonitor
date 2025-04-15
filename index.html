@@ -7,135 +7,312 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <!-- FontAwesome for icons -->
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" crossorigin="anonymous" referrerpolicy="no-referrer" />
+  <!-- Add Google Fonts for a modern look -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
   <!-- Chart.js for doughnut graphs -->
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
   <style>
-    /* Dark theme, modern design, optimized for smartphones */
+    /* Modern design system with Inter font, updated color palette */
+    :root {
+      --bg-dark: #0f172a;
+      --bg-card: #1e293b;
+      --color-text: #f1f5f9;
+      --color-text-muted: #94a3b8;
+      --color-primary: #0ea5e9;
+      --color-success: #10b981;
+      --color-warning: #f59e0b;
+      --color-danger: #ef4444;
+      --color-info: #3b82f6;
+      --radius-sm: 8px;
+      --radius-md: 12px;
+      --radius-lg: 16px;
+      --shadow-sm: 0 1px 2px rgba(0,0,0,0.1);
+      --shadow-md: 0 4px 6px -1px rgba(0,0,0,0.2);
+      --shadow-lg: 0 10px 15px -3px rgba(0,0,0,0.3);
+    }
+    
     body {
-      font-family: 'Segoe UI', sans-serif;
-      background: #121212;
-      color: #e0e0e0;
+      font-family: 'Inter', system-ui, -apple-system, sans-serif;
+      background: var(--bg-dark);
+      color: var(--color-text);
       margin: 0;
       padding: 20px;
+      line-height: 1.5;
+      letter-spacing: -0.01em;
     }
+    
+    h1, h2, h3 {
+      font-weight: 600;
+      letter-spacing: -0.02em;
+    }
+    
     h1 {
       text-align: center;
       margin-bottom: 20px;
-      color: #e0e0e0;
+      font-size: 2rem;
     }
+    
     /* Dashboard Container */
     #dashboard {
       display: flex;
       flex-wrap: wrap;
       justify-content: center;
-      gap: 20px;
+      gap: 16px;
     }
+    
     .card {
-      background: #1e1e1e;
+      background: var(--bg-card);
       width: 160px;
-      border-radius: 8px;
-      padding: 15px;
+      border-radius: var(--radius-md);
+      padding: 16px;
       text-align: center;
-      box-shadow: 0 2px 6px rgba(0,0,0,0.6);
+      box-shadow: var(--shadow-md);
       cursor: pointer;
       position: relative;
-      transition: transform 0.2s;
+      transition: all 0.2s ease;
+      border: 1px solid rgba(255,255,255,0.05);
     }
-    .card:hover { transform: scale(1.05); }
-    .card .icon { font-size: 36px; margin-bottom: 10px; }
+    
+    .card:hover { 
+      transform: translateY(-4px); 
+      box-shadow: var(--shadow-lg);
+      background: #1e293b; 
+    }
+    
+    .card .icon { 
+      font-size: 28px; 
+      margin-bottom: 12px;
+      opacity: 0.9;
+    }
+    
     .chart-container {
       position: relative;
       width: 80px;
       height: 80px;
-      margin: 0 auto;
+      margin: 0 auto 8px;
     }
+    
     .chart-container canvas {
       width: 80px !important;
       height: 80px !important;
       display: block;
     }
+    
     .chart-label {
       position: absolute;
       top: 50%;
       left: 50%;
       transform: translate(-50%, -50%);
       font-size: 16px;
-      font-weight: bold;
+      font-weight: 600;
       z-index: 10;
       pointer-events: none;
     }
+    
     .label {
       margin-top: 8px;
       font-size: 14px;
       font-weight: 500;
+      color: var(--color-text);
     }
+    
+    /* Connection Status Bar */
+    #connectionStatusBar {
+      width: 100%;
+      padding: 12px;
+      margin-bottom: 20px;
+      text-align: center;
+      border-radius: var(--radius-md);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      background: #3b82f6;
+      box-shadow: var(--shadow-sm);
+    }
+    
+    #toggleSyncMode {
+      background: rgba(0,0,0,0.2);
+      border: none;
+      color: white;
+      padding: 6px 12px;
+      border-radius: var(--radius-sm);
+      cursor: pointer;
+      font-size: 13px;
+      font-weight: 500;
+      transition: background 0.2s ease;
+    }
+    
+    #toggleSyncMode:hover {
+      background: rgba(0,0,0,0.3);
+    }
+    
+    /* Progress Bar Card */
+    .progress-card {
+      width: 100%;
+      margin-bottom: 16px;
+      background: var(--bg-card);
+      padding: 16px;
+      border-radius: var(--radius-md);
+      box-shadow: var(--shadow-md);
+      border: 1px solid rgba(255,255,255,0.05);
+    }
+    
+    .progress-card .title {
+      font-size: 18px;
+      font-weight: 600;
+      margin-bottom: 2px;
+    }
+    
+    .progress-card .subtitle {
+      font-size: 13px;
+      color: var(--color-text-muted);
+      margin-bottom: 12px;
+    }
+    
+    .progress-bar-container {
+      width: 100%;
+      height: 8px;
+      background: rgba(255,255,255,0.1);
+      border-radius: 4px;
+      overflow: hidden;
+      margin-top: 12px;
+    }
+    
+    .progress-bar {
+      height: 100%;
+      border-radius: 4px;
+      transition: width 0.3s ease;
+      background: var(--color-primary);
+    }
+    
     /* Section styling */
     .section {
       display: none;
       margin-top: 20px;
-      background: #1e1e1e;
-      padding: 20px;
-      border-radius: 8px;
-      box-shadow: 0 2px 6px rgba(0,0,0,0.6);
+      background: var(--bg-card);
+      padding: 24px;
+      border-radius: var(--radius-md);
+      box-shadow: var(--shadow-md);
+      border: 1px solid rgba(255,255,255,0.05);
     }
+    
     .section.active { display: block; }
+    
     .btn-back {
-      background: #e74c3c;
+      background: rgba(239, 68, 68, 0.9);
       border: none;
-      color: #fff;
-      padding: 8px 12px;
-      border-radius: 4px;
+      color: white;
+      padding: 8px 16px;
+      border-radius: var(--radius-sm);
       cursor: pointer;
-      margin-bottom: 15px;
+      margin-bottom: 20px;
+      font-weight: 500;
+      transition: background 0.2s ease;
+      box-shadow: var(--shadow-sm);
     }
+    
+    .btn-back:hover {
+      background: rgba(220, 38, 38, 1);
+    }
+    
     /* Table and input styling for reporting sections */
     table {
       width: 100%;
       border-collapse: collapse;
-      margin-bottom: 15px;
+      margin-bottom: 20px;
+      border-radius: var(--radius-sm);
+      overflow: hidden;
     }
+    
     th, td {
-      padding: 8px;
-      border: 1px solid #333;
+      padding: 12px;
+      border: 1px solid rgba(255,255,255,0.1);
       text-align: center;
       vertical-align: middle;
     }
-    th { background: #2c2c2c; }
+    
+    th { 
+      background: rgba(255,255,255,0.05);
+      font-weight: 600;
+    }
+    
     .timestamp {
       display: block;
       font-size: 0.8em;
-      color: #aaa;
+      color: var(--color-text-muted);
       margin-top: 5px;
     }
+    
     select, input[type="text"], input[type="time"], input[type="number"], textarea {
       width: 100%;
-      padding: 8px;
-      border: 1px solid #555;
-      border-radius: 4px;
+      padding: 12px;
+      border: 1px solid rgba(255,255,255,0.1);
+      border-radius: var(--radius-sm);
       box-sizing: border-box;
       font-size: 14px;
-      background: #2c2c2c;
-      color: #e0e0e0;
+      background: rgba(255,255,255,0.05);
+      color: var(--color-text);
+      font-family: 'Inter', system-ui, sans-serif;
+      transition: border-color 0.2s ease, background 0.2s ease;
     }
-    .input-group { margin-bottom: 15px; }
-    .input-group label { display: block; font-weight: bold; margin-bottom: 5px; }
+    
+    select:focus, input:focus, textarea:focus {
+      outline: none;
+      border-color: var(--color-primary);
+      background: rgba(255,255,255,0.08);
+    }
+    
+    .input-group { margin-bottom: 20px; }
+    
+    .input-group label { 
+      display: block; 
+      font-weight: 500; 
+      margin-bottom: 8px;
+      color: var(--color-text);
+    }
+    
     button.save-btn {
-      background: #007bff;
+      background: var(--color-primary);
       border: none;
-      border-radius: 4px;
-      padding: 8px 12px;
+      border-radius: var(--radius-sm);
+      padding: 12px 20px;
       cursor: pointer;
-      margin-top: 10px;
-      color: #fff;
+      color: white;
+      font-weight: 500;
+      box-shadow: var(--shadow-sm);
+      transition: background 0.2s ease, transform 0.1s ease;
+      font-family: 'Inter', system-ui, sans-serif;
     }
-    button.save-btn:hover { background: #0056b3; }
+    
+    button.save-btn:hover { 
+      background: #0284c7; 
+    }
+    
+    button.save-btn:active {
+      transform: translateY(1px);
+    }
+    
+    /* Info cards */
+    .info-card {
+      background: rgba(255,255,255,0.05);
+      padding: 12px;
+      border-radius: var(--radius-sm);
+      margin-bottom: 16px;
+      font-size: 14px;
+      border-left: 3px solid var(--color-info);
+    }
+    
     /* Responsive settings for smartphones */
     @media (max-width: 600px) {
-      body { padding: 10px; }
-      .card { width: 140px; padding: 10px; }
-      .chart-container { width: 60px; height: 60px; }
+      body { padding: 12px; }
+      h1 { font-size: 1.5rem; }
+      .card { width: 140px; padding: 12px; }
+      .chart-container { width: 70px; height: 70px; }
       .chart-label { font-size: 14px; }
       .label { font-size: 12px; }
+      .section { padding: 16px; }
     }
   </style>
 </head>
@@ -144,25 +321,24 @@
   <!-- MAIN DASHBOARD -->
   <div id="dashboard">
     <!-- Connection Status will be inserted here by JS -->
-    <div id="connectionStatusBar"
-      style="width:100%;padding:5px;margin-bottom:15px;text-align:center;background:#3498db;border-radius:4px;display:flex;justify-content:space-between;align-items:center;">
+    <div id="connectionStatusBar">
       <span>⏳ Connecting to Google Sheets...</span>
-      <button id="toggleSyncMode" style="background:#555;border:none;color:white;padding:3px 8px;border-radius:4px;cursor:pointer;font-size:12px;">
+      <button id="toggleSyncMode">
         Use Local Storage
       </button>
     </div>
     
     <!-- Total Progress Card -->
-    <div class="card" style="width:100%;margin-bottom:10px;background:#1e1e1e;">
+    <div class="progress-card">
       <div style="display:flex;align-items:center;justify-content:space-between;">
         <div>
-          <div style="font-size:18px;font-weight:bold;">Total Progress</div>
-          <div style="font-size:12px;color:#aaa;">Daily health accomplishments</div>
+          <div class="title">Total Progress</div>
+          <div class="subtitle">Daily health accomplishments</div>
         </div>
-        <div id="totalProgressDisplay" style="font-size:24px;font-weight:bold;color:#3498db;">0%</div>
+        <div id="totalProgressDisplay" style="font-size:24px;font-weight:600;color:var(--color-primary);">0%</div>
       </div>
-      <div style="width:100%;height:10px;background:#555;border-radius:5px;margin-top:10px;overflow:hidden;">
-        <div id="totalProgressBar" style="width:0%;height:100%;background:#3498db;border-radius:5px;"></div>
+      <div class="progress-bar-container">
+        <div id="totalProgressBar" class="progress-bar" style="width:0%;"></div>
       </div>
     </div>
     <!-- Medication Card -->
@@ -282,7 +458,7 @@
   <div id="weightSection" class="section">
     <button class="btn-back" onclick="closeSection()">← Back to Dashboard</button>
     <h2>Daily Weight Tracking</h2>
-    <div style="background:#2c2c2c;padding:10px;border-radius:4px;margin-bottom:15px;font-size:14px;">
+    <div class="info-card">
       For best results, weigh yourself in the morning after using the bathroom and before eating or drinking.
     </div>
     <div class="input-group">
@@ -311,7 +487,7 @@
   <div id="bmSection" class="section">
     <button class="btn-back" onclick="closeSection()">← Back to Dashboard</button>
     <h2>Bowel Movement Reporting</h2>
-    <div style="background:#2c2c2c;padding:10px;border-radius:4px;margin-bottom:15px;font-size:14px;">
+    <div class="info-card">
       Target: 2–3 soft stools per day (Lactulose dose should be adjusted to achieve this)
     </div>
     <div class="input-group">
@@ -357,7 +533,7 @@
   <div id="drinkSection" class="section">
     <button class="btn-back" onclick="closeSection()">← Back to Dashboard</button>
     <h2>Drink Intake Reporting</h2>
-    <div style="background:#2c2c2c;padding:10px;border-radius:4px;margin-bottom:15px;font-size:14px;">
+    <div class="info-card">
       Target: 1.5–2 liters of water daily (about 6-8 cups)
     </div>
     <div class="input-group">
@@ -387,7 +563,7 @@
   <div id="mealsSection" class="section">
     <button class="btn-back" onclick="closeSection()">← Back to Dashboard</button>
     <h2>Meals & Nutrition Reporting</h2>
-    <div style="background:#2c2c2c;padding:10px;border-radius:4px;margin-bottom:15px;font-size:14px;">
+    <div class="info-card">
       Protein Goal: 1.0–1.5 g/kg/day (include in every meal)<br>
       Salt Restriction: Less than 2 grams/day
     </div>
@@ -524,7 +700,7 @@
   <div id="mentalSection" class="section">
     <button class="btn-back" onclick="closeSection()">← Back to Dashboard</button>
     <h2>Mental &amp; Physical Tests</h2>
-    <div style="background:#2c2c2c;padding:10px;border-radius:4px;margin-bottom:15px;font-size:14px;">
+    <div class="info-card">
       Complete at least 2 tests below to mark this section as complete.
     </div>
     <div class="input-group">
