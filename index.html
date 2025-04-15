@@ -11,8 +11,8 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-  <!-- Chart.js for doughnut graphs -->
-  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <!-- Chart.js for doughnut graphs - Use our local copy -->
+  <script src="chart.min.js"></script>
   <style>
     /* Modern design system with Inter font, updated color palette */
     :root {
@@ -357,10 +357,60 @@
         width: 80px;
       }
     }
+
+    /* Hero image styling */
+    .hero-image {
+      width: 100%;
+      display: flex;
+      justify-content: center;
+      margin-bottom: 20px;
+    }
+    
+    .liver-hero {
+      width: 200px;
+      height: auto;
+      border-radius: var(--radius-lg);
+      box-shadow: var(--shadow-md);
+    }
+    
+    @media (max-width: 600px) {
+      .liver-hero {
+        width: 150px;
+      }
+    }
+
+    /* Hero section styling */
+    .hero-section {
+      text-align: center;
+      margin-bottom: 30px;
+      padding-top: 20px;
+    }
+    
+    .liver-hero {
+      max-width: 250px;
+      height: auto;
+      border-radius: var(--radius-lg);
+      box-shadow: var(--shadow-md);
+      margin-bottom: 15px;
+    }
+    
+    @media (max-width: 600px) {
+      .hero-section {
+        margin-bottom: 20px;
+      }
+      
+      .liver-hero {
+        max-width: 180px;
+      }
+    }
   </style>
 </head>
 <body>
-  <h1>Health Monitoring Dashboard</h1>
+  <!-- Create a hero section at the top of the page with the liver image -->
+  <div class="hero-section">
+    <img src="liver-hero.png" alt="Healthy Liver Hero" class="liver-hero">
+    <h1>Health Monitoring Dashboard</h1>
+  </div>
   <!-- MAIN DASHBOARD -->
   <div id="dashboard">
     <!-- Connection Status will be inserted here by JS -->
@@ -848,28 +898,115 @@
 
   <script>
     /* -------------------------
-       Chart.js Verification
+       Chart.js Verification with enhanced error handling
        ------------------------- */
-    // Check if Chart.js is loaded properly
     function checkChartJsLoaded() {
+      console.log("Checking Chart.js availability...");
+      
       if (typeof Chart === 'undefined') {
         console.error("Chart.js is not loaded! Adding fallback...");
-        // Add a fallback loading of Chart.js if the CDN failed
+
+        // Add a fallback loading of Chart.js
         const scriptTag = document.createElement('script');
         scriptTag.src = 'https://cdn.jsdelivr.net/npm/chart.js@3.7.1/dist/chart.min.js';
         scriptTag.onload = function() {
           console.log("Chart.js fallback loaded successfully");
-          // Reinitialize charts once loaded
-          if (document.readyState === 'complete' || document.readyState === 'interactive') {
-            setTimeout(initCharts, 100);
-          }
+          setTimeout(initCharts, 200);
         };
         document.head.appendChild(scriptTag);
         return false;
       }
-      console.log("Chart.js is loaded properly");
+
+      console.log("Chart.js is available");
       return true;
     }
+
+      // Initialize charts function with better error handling
+      function initChartsWithRetry(retryCount = 0) {
+        console.log(`Attempting to initialize charts (attempt ${retryCount + 1})`);
+
+        if (retryCount >= 3) {
+          console.error("Failed to initialize charts after multiple attempts");
+          return;
+        }
+
+        try {
+          if (typeof Chart === 'undefined') {
+            console.error("Chart.js not available on attempt " + (retryCount + 1));
+            setTimeout(() => initChartsWithRetry(retryCount + 1), 1000);
+            return;
+          }
+
+          // Get all chart canvases
+          const chartCanvases = {
+            medChart: document.getElementById('medChart'),
+            weightChart: document.getElementById('weightChart'),
+            bmChart: document.getElementById('bmChart'),
+            drinkChart: document.getElementById('drinkChart'),
+            mealsChart: document.getElementById('mealsChart'),
+            sleepChart: document.getElementById('sleepChart'),
+            activityChart: document.getElementById('activityChart'),
+            mentalChart: document.getElementById('mentalChart'),
+            notesChart: document.getElementById('notesChart'),
+            symptomChart: document.getElementById('symptomChart')
+          };
+
+          // Create each chart
+          medChart = createChartWithFallback(chartCanvases.medChart, '#e74c3c');
+          weightChart = createChartWithFallback(chartCanvases.weightChart, '#1abc9c');
+          bmChart = createChartWithFallback(chartCanvases.bmChart, '#27ae60');
+          drinkChart = createChartWithFallback(chartCanvases.drinkChart, '#3498db');
+          mealsChart = createChartWithFallback(chartCanvases.mealsChart, '#f1c40f');
+          sleepChart = createChartWithFallback(chartCanvases.sleepChart, '#8e44ad');
+          activityChart = createChartWithFallback(chartCanvases.activityChart, '#e67e22');
+          mentalChart = createChartWithFallback(chartCanvases.mentalChart, '#2ecc71');
+          notesChart = createChartWithFallback(chartCanvases.notesChart, '#34495e');
+          symptomChart = createChartWithFallback(chartCanvases.symptomChart, '#f39c12');
+
+          // Update the charts
+          console.log("Charts created, updating data...");
+          updateCharts();
+          console.log("Charts initialized successfully");
+        } catch (error) {
+          console.error("Error initializing charts:", error);
+          setTimeout(() => initChartsWithRetry(retryCount + 1), 1000);
+        }
+      }
+
+      // More robust chart creation function
+      function createChartWithFallback(canvas, color) {
+        if (!canvas) {
+          console.error(`Canvas not found for color ${color}`);
+          return null;
+        }
+
+        try {
+          const ctx = canvas.getContext('2d');
+          if (!ctx) {
+            console.error(`Could not get context for canvas with color ${color}`);
+            return null;
+          }
+
+          return new Chart(ctx, {
+            type: 'doughnut',
+            data: {
+              datasets: [{
+                data: [0, 100],
+                backgroundColor: [color, '#555'],
+                borderWidth: 0
+              }]
+            },
+            options: {
+              cutout: '70%',
+              responsive: false,
+              plugins: { tooltip: { enabled: false }, legend: { display: false } }
+            }
+          });
+        } catch (error) {
+          console.error(`Error creating chart with color ${color}:`, error);
+          return null;
+        }
+      }
     
     /* -------------------------
        Daily Persistence & Midnight Refresh
@@ -2177,19 +2314,11 @@
         });
       }
       
-      // Rest of initialization
+      // Chart initialization with better error handling
+      console.log("Dashboard loaded, initializing charts with retry mechanism...");
       if (checkChartJsLoaded()) {
-        // Make sure all chart canvases are properly accessible
-        setTimeout(() => {
-          try {
-            initCharts();
-            console.log("Charts initialized successfully");
-          } catch (e) {
-            console.error("Error initializing charts:", e);
-            // Try again with a delay in case DOM elements weren't fully rendered
-            setTimeout(initCharts, 500);
-          }
-        }, 100);
+        // Start the chart initialization with retry mechanism
+        setTimeout(() => initChartsWithRetry(0), 100);
       }
       
       generateMedTable();
@@ -2208,6 +2337,12 @@
         console.log("Found existing data in local storage");
       }
     });
+
+  // Connect the original initCharts function to our new retry function
+  function initCharts() {
+    console.log("Original initCharts called, redirecting to retry mechanism");
+    initChartsWithRetry(0);
+  }
   </script>
     <!-- Footer with logo and copyright -->
     <footer class="footer">
