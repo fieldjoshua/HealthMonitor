@@ -1398,6 +1398,11 @@
     let physicalSymptoms = JSON.parse(localStorage.getItem('physicalSymptoms')) || [];
     let notesRecord = localStorage.getItem('notesRecord') || "";
 
+      // Arrays to store multiple entries for drinks, meals, and bowel movements
+      let bowelMovements = JSON.parse(localStorage.getItem('bowelMovements')) || [];
+      let drinkEntries = JSON.parse(localStorage.getItem('drinkEntries')) || [];
+      let mealEntries = JSON.parse(localStorage.getItem('mealEntries')) || [];
+
     /* -------------------------
        Generate Medication Table
        ------------------------- */
@@ -1576,20 +1581,25 @@
       document.getElementById('weightChartLabel').textContent = weightRecord.weight ? `${weightRecord.weight}` : "-";
       
       // Bowel Movements: target = BM_GOAL
-      const bmCount = typeof bmRecord === 'object' && bmRecord.type ? 1 : 0;
-      const bmPerc = bmCount ? Math.round((bmCount / BM_GOAL) * 100) : 0;
+      // Count total bowel movements for the day
+      const bmCount = bowelMovements.length > 0 ? bowelMovements.length : (typeof bmRecord === 'object' && bmRecord.type ? 1 : 0);
+      const bmPerc = Math.min(Math.round((bmCount / BM_GOAL) * 100), 100);
       updateChartData(bmChart, bmPerc);
-      document.getElementById('bmChartLabel').textContent = bmCount ? `1/${BM_GOAL}` : `0/${BM_GOAL}`;
+      document.getElementById('bmChartLabel').textContent = `${bmCount}/${BM_GOAL}`;
       
       // Drink Intake: target = DRINK_GOAL cups
-      const drinkPerc = drinkRecord.amount ? Math.round((1 / DRINK_GOAL) * 100) : 0;
+      // Count all drink entries
+      const drinkCount = drinkEntries.length > 0 ? drinkEntries.length : (drinkRecord.amount ? 1 : 0);
+      const drinkPerc = Math.min(Math.round((drinkCount / DRINK_GOAL) * 100), 100);
       updateChartData(drinkChart, drinkPerc);
-      document.getElementById('drinkChartLabel').textContent = drinkRecord.amount ? `1/${DRINK_GOAL}` : `0/${DRINK_GOAL}`;
+      document.getElementById('drinkChartLabel').textContent = `${drinkCount}/${DRINK_GOAL}`;
       
       // Meals: target = MEALS_GOAL meals
-      const mealsPerc = mealsRecord.details ? Math.round((1 / MEALS_GOAL) * 100) : 0;
+      // Count all meal entries
+      const mealCount = mealEntries.length > 0 ? mealEntries.length : (mealsRecord.details ? 1 : 0);
+      const mealsPerc = Math.min(Math.round((mealCount / MEALS_GOAL) * 100), 100);
       updateChartData(mealsChart, mealsPerc);
-      document.getElementById('mealsChartLabel').textContent = mealsRecord.details ? `1/${MEALS_GOAL}` : `0/${MEALS_GOAL}`;
+      document.getElementById('mealsChartLabel').textContent = `${mealCount}/${MEALS_GOAL}`;
       
       // Sleep: percentage = (hours / SLEEP_GOAL)*100, cap at 100
       const sleepVal = sleepRecord.hours || 0;
@@ -2104,28 +2114,73 @@
             localStorage.setItem('weightRecord', JSON.stringify(weightRecord));
             break;
           case 'bowelMovements':
-            bmRecord = {
+            const newBM = {
               type: document.getElementById('bmSelect').value,
               color: document.getElementById('bmColor').value,
               notes: document.getElementById('bmNotes').value,
               timestamp: new Date().toLocaleTimeString()
             };
-            payload = bmRecord;
+
+            // Also store in the old format for compatibility
+            bmRecord = newBM;
             localStorage.setItem('bmRecord', JSON.stringify(bmRecord));
+
+            // Add to the array of bowel movements
+            bowelMovements.push(newBM);
+            localStorage.setItem('bowelMovements', JSON.stringify(bowelMovements));
+
+            payload = { single: newBM, all: bowelMovements };
+
+            // Reset the form
+            document.getElementById('bmSelect').selectedIndex = 0;
+            document.getElementById('bmColor').selectedIndex = 0;
+            document.getElementById('bmNotes').selectedIndex = 0;
             break;
           case 'drinkIntake':
-            drinkRecord.amount = document.getElementById('drinkAmount').value;
-            drinkRecord.type = document.getElementById('drinkType').value;
-            payload = drinkRecord;
+            const newDrink = {
+              amount: document.getElementById('drinkAmount').value,
+              type: document.getElementById('drinkType').value,
+              timestamp: new Date().toLocaleTimeString()
+            };
+
+            // Store in old format for compatibility
+            drinkRecord = newDrink;
             localStorage.setItem('drinkRecord', JSON.stringify(drinkRecord));
+
+            // Add to array of drink entries
+            drinkEntries.push(newDrink);
+            localStorage.setItem('drinkEntries', JSON.stringify(drinkEntries));
+
+            payload = { single: newDrink, all: drinkEntries };
+
+            // Reset the form
+            document.getElementById('drinkAmount').selectedIndex = 0;
+            document.getElementById('drinkType').selectedIndex = 0;
             break;
           case 'meals':
-            mealsRecord.details = document.getElementById('mealDetails').value;
-            mealsRecord.protein = document.getElementById('proteinAmount').value;
-            mealsRecord.salt = document.getElementById('saltIntake').value;
-            mealsRecord.appetite = document.getElementById('appetite').value;
-            payload = mealsRecord;
+            const newMeal = {
+              details: document.getElementById('mealDetails').value,
+              protein: document.getElementById('proteinAmount').value,
+              salt: document.getElementById('saltIntake').value,
+              appetite: document.getElementById('appetite').value,
+              timestamp: new Date().toLocaleTimeString()
+            };
+
+            // Store in old format for compatibility
+            mealsRecord = newMeal;
             localStorage.setItem('mealsRecord', JSON.stringify(mealsRecord));
+
+            // Add to array of meal entries
+            mealEntries.push(newMeal);
+            localStorage.setItem('mealEntries', JSON.stringify(mealEntries));
+
+            payload = { single: newMeal, all: mealEntries };
+
+            // Reset the form
+            document.getElementById('mealDetails').selectedIndex = 0;
+            document.getElementById('proteinAmount').selectedIndex = 0;
+            document.getElementById('saltIntake').selectedIndex = 0;
+            document.getElementById('appetite').selectedIndex = 0;
             break;
           case 'sleep':
             sleepRecord.hours = document.getElementById('sleepHours').value;
@@ -2364,280 +2419,6 @@
             Export Data
           </button>
           <button id="closeAdminBtn" class="admin-btn admin-btn-secondary">
-            Close
-          </button>
-        </div>
-      `;
-
-                          document.body.appendChild(adminPanel);
-
-                          // Function to show the admin panel
-                          function showAdminPanel() {
-                            adminPanel.style.display = 'block';
-                            adminPanelVisible = true;
-
-                            // Add event listeners to buttons
-                            document.getElementById('diagnosticsBtn').addEventListener('click', runDiagnostics);
-                            document.getElementById('clearDataBtn').addEventListener('click', confirmClearData);
-                            document.getElementById('exportDataBtn').addEventListener('click', exportData);
-                            document.getElementById('closeAdminBtn').addEventListener('click', hideAdminPanel);
-                          }
-
-                          // Function to hide the admin panel
-                          function hideAdminPanel() {
-                            adminPanel.style.display = 'none';
-                            adminPanelVisible = false;
-                          }
-
-                          // Function to confirm data clearing
-                          function confirmClearData() {
-                            const confirmed = confirm("WARNING: This will delete ALL data, including archived data. This cannot be undone. Are you sure?");
-                            if (confirmed) {
-                              localStorage.clear();
-                              alert("All data has been cleared. The page will now reload.");
-                              location.reload();
-                            }
-                          }
-
-                          // Function to export data
-                          function exportData() {
-                            try {
-                              const allData = {
-                                currentDate: new Date().toISOString(),
-                                todayKey: todayKey,
-                                medicationRecords: medicationRecords,
-                                weightRecord: weightRecord,
-                                bmRecord: bmRecord,
-                                drinkRecord: drinkRecord,
-                                mealsRecord: mealsRecord,
-                                sleepRecord: sleepRecord,
-                                activityRecord: activityRecord,
-                                mentalRecord: mentalRecord,
-                                physicalSymptoms: physicalSymptoms,
-                                notesRecord: notesRecord,
-                                archive: JSON.parse(localStorage.getItem('healthArchive') || '{}')
-                              };
-
-                              const dataStr = JSON.stringify(allData, null, 2);
-                              const dataUri = 'data:application/json;charset=utf-8,' + encodeURIComponent(dataStr);
-
-                              const exportFileDefaultName = 'health_data_export_' + new Date().toISOString().slice(0, 10) + '.json';
-
-                              const linkElement = document.createElement('a');
-                              linkElement.setAttribute('href', dataUri);
-                              linkElement.setAttribute('download', exportFileDefaultName);
-                              linkElement.click();
-                            } catch (error) {
-                              console.error("Error exporting data:", error);
-                              alert("Error exporting data: " + error.message);
-                            }
-                          }
-                        }
-
-                        /* -------------------------
-                           Connection Diagnostics
-                           ------------------------- */
-                        async function runDiagnostics() {
-                          const diagnosticsDiv = document.createElement('div');
-                          diagnosticsDiv.className = 'diagnostics-container';
-
-                          diagnosticsDiv.innerHTML = `
-        <h3 class="diagnostics-header">Connection Diagnostics</h3>
-        <div id="diagnosticsResults" class="diagnostics-results"></div>
-        <div class="diagnostics-buttons">
-          <button id="closeDiagnostics" class="admin-btn admin-btn-danger">Close</button>
-          <button id="testHttpbin" class="admin-btn admin-btn-primary">Test Httpbin</button>
-          <button id="testAppScript" class="admin-btn admin-btn-success">Test Apps Script</button>
-        </div>
-        <div class="diagnostics-custom">
-          <input id="customEndpoint" type="text" placeholder="Enter custom endpoint to test">
-          <button id="testCustom" class="admin-btn">Test Custom Endpoint</button>
-        </div>
-      `;
-
-                          document.body.appendChild(diagnosticsDiv);
-
-                          const resultsDiv = document.getElementById('diagnosticsResults');
-
-                          document.getElementById('closeDiagnostics').addEventListener('click', () => {
-                            document.body.removeChild(diagnosticsDiv);
-                          });
-
-                          document.getElementById('testHttpbin').addEventListener('click', async () => {
-                            resultsDiv.innerHTML += `<div style="margin:5px 0;border-bottom:1px dashed #555;padding-bottom:5px;">Testing httpbin.org POST...</div>`;
-                            try {
-                              const response = await fetch('https://httpbin.org/post', {
-                                method: 'POST',
-                                headers: {
-                                  'Content-Type': 'application/json'
-                                },
-                                body: JSON.stringify({ test: 'connection' })
-                              });
-
-                              const data = await response.json();
-                              resultsDiv.innerHTML += `<div style="color:#2ecc71;">✓ Httpbin test successful!</div>`;
-                              resultsDiv.innerHTML += `<div style="max-height:100px;overflow:auto;background:#2c2c2c;padding:5px;margin:5px 0;border-radius:4px;">${JSON.stringify(data, null, 2)}</div>`;
-                            } catch (error) {
-                              resultsDiv.innerHTML += `<div style="color:#e74c3c;">✗ Httpbin test failed: ${error.message}</div>`;
-                            }
-                          });
-
-                          document.getElementById('testAppScript').addEventListener('click', async () => {
-                            resultsDiv.innerHTML += `<div style="margin:5px 0;border-bottom:1px dashed #555;padding-bottom:5px;">Testing Google Apps Script URL...</div>`;
-
-                            // First test with GET request
-                            try {
-                              resultsDiv.innerHTML += `<div>Testing GET request...</div>`;
-                              const getResponse = await fetch(CONFIG.googleSheetsApiUrl);
-                              const getStatus = getResponse.status;
-                              resultsDiv.innerHTML += `<div>GET Status: ${getStatus}</div>`;
-
-                              try {
-                                const getData = await getResponse.json();
-                                resultsDiv.innerHTML += `<div style="color:#2ecc71;">✓ GET response parsed as JSON</div>`;
-                                resultsDiv.innerHTML += `<div style="max-height:100px;overflow:auto;background:#2c2c2c;padding:5px;margin:5px 0;border-radius:4px;">${JSON.stringify(getData, null, 2)}</div>`;
-                              } catch (e) {
-                                const getText = await getResponse.text();
-                                resultsDiv.innerHTML += `<div style="color:#e74c3c;">✗ GET response is not valid JSON</div>`;
-                                resultsDiv.innerHTML += `<div style="max-height:100px;overflow:auto;background:#2c2c2c;padding:5px;margin:5px 0;border-radius:4px;white-space:pre-wrap;font-size:10px;">${getText.substring(0, 500)}${getText.length > 500 ? '...' : ''}</div>`;
-                              }
-                            } catch (error) {
-                              resultsDiv.innerHTML += `<div style="color:#e74c3c;">✗ GET request failed: ${error.message}</div>`;
-                            }
-
-                            // Then test with POST request
-                            try {
-                              resultsDiv.innerHTML += `<div>Testing POST request...</div>`;
-                              const postResponse = await fetch(CONFIG.googleSheetsApiUrl, {
-                                method: 'POST',
-                                headers: {
-                                  'Content-Type': 'application/json'
-                                },
-                                body: JSON.stringify({ test: 'connection' })
-                              });
-
-                              const postStatus = postResponse.status;
-                              resultsDiv.innerHTML += `<div>POST Status: ${postStatus}</div>`;
-
-                              try {
-                                const postData = await postResponse.json();
-                                resultsDiv.innerHTML += `<div style="color:#2ecc71;">✓ POST response parsed as JSON</div>`;
-                                resultsDiv.innerHTML += `<div style="max-height:100px;overflow:auto;background:#2c2c2c;padding:5px;margin:5px 0;border-radius:4px;">${JSON.stringify(postData, null, 2)}</div>`;
-                              } catch (e) {
-                                const postText = await postResponse.text();
-                                resultsDiv.innerHTML += `<div style="color:#e74c3c;">✗ POST response is not valid JSON</div>`;
-                                resultsDiv.innerHTML += `<div style="max-height:100px;overflow:auto;background:#2c2c2c;padding:5px;margin:5px 0;border-radius:4px;white-space:pre-wrap;font-size:10px;">${postText.substring(0, 500)}${postText.length > 500 ? '...' : ''}</div>`;
-                              }
-                            } catch (error) {
-                              resultsDiv.innerHTML += `<div style="color:#e74c3c;">✗ POST request failed: ${error.message}</div>`;
-                            }
-
-                            resultsDiv.innerHTML += `<div style="margin:5px 0;border-bottom:1px dashed #555;padding-bottom:5px;">URL being tested: ${CONFIG.googleSheetsApiUrl}</div>`;
-                          });
-
-                          document.getElementById('testCustom').addEventListener('click', async () => {
-                            const customUrl = document.getElementById('customEndpoint').value;
-                            if (!customUrl) {
-                              resultsDiv.innerHTML += `<div style="color:#e74c3c;">Please enter a URL to test</div>`;
-                              return;
-                            }
-
-                            resultsDiv.innerHTML += `<div style="margin:5px 0;border-bottom:1px dashed #555;padding-bottom:5px;">Testing custom URL: ${customUrl}</div>`;
-
-                            try {
-                              resultsDiv.innerHTML += `<div>Testing GET request...</div>`;
-                              const getResponse = await fetch(customUrl);
-                              const getStatus = getResponse.status;
-                              resultsDiv.innerHTML += `<div>GET Status: ${getStatus}</div>`;
-
-                              try {
-                                const getData = await getResponse.json();
-                                resultsDiv.innerHTML += `<div style="color:#2ecc71;">✓ GET response parsed as JSON</div>`;
-                                resultsDiv.innerHTML += `<div style="max-height:100px;overflow:auto;background:#2c2c2c;padding:5px;margin:5px 0;border-radius:4px;">${JSON.stringify(getData, null, 2)}</div>`;
-                              } catch (e) {
-                                const getText = await getResponse.text();
-                                resultsDiv.innerHTML += `<div style="color:#e74c3c;">✗ GET response is not valid JSON</div>`;
-                                resultsDiv.innerHTML += `<div style="max-height:100px;overflow:auto;background:#2c2c2c;padding:5px;margin:5px 0;border-radius:4px;white-space:pre-wrap;font-size:10px;">${getText.substring(0, 500)}${getText.length > 500 ? '...' : ''}</div>`;
-                              }
-                            } catch (error) {
-                              resultsDiv.innerHTML += `<div style="color:#e74c3c;">✗ GET request failed: ${error.message}</div>`;
-                            }
-                          });
-                        }
-
-                        /* -------------------------
-                           Add Diagnostics Button
-                           ------------------------- */
-                        function addAdminSection() {
-                          // Remove the original diagnostics button if it exists
-                          const existingButton = document.querySelector('button[innerHTML="Diagnostics"]');
-                          if (existingButton) {
-                            try {
-                              existingButton.parentNode.removeChild(existingButton);
-                            } catch (e) {
-                              console.warn("Could not remove existing diagnostics button:", e);
-                            }
-                          }
-
-                          // Create the admin button
-                          const adminButton = document.createElement('button');
-                          adminButton.innerHTML = '⚙️';
-                          adminButton.style.position = 'fixed';
-                          adminButton.style.bottom = '10px';
-                          adminButton.style.right = '10px';
-                          adminButton.style.zIndex = '1000';
-                          adminButton.style.backgroundColor = '#34495e';
-                          adminButton.style.color = 'white';
-                          adminButton.style.border = 'none';
-                          adminButton.style.borderRadius = '50%';
-                          adminButton.style.width = '40px';
-                          adminButton.style.height = '40px';
-                          adminButton.style.fontSize = '18px';
-                          adminButton.style.cursor = 'pointer';
-                          adminButton.style.boxShadow = '0 2px 5px rgba(0,0,0,0.3)';
-
-                          let adminPanelVisible = false;
-
-                          adminButton.addEventListener('click', () => {
-                            if (adminPanelVisible) {
-                              hideAdminPanel();
-                            } else {
-                              showAdminPanel();
-                            }
-                          });
-
-                          document.body.appendChild(adminButton);
-
-                          // Create the admin panel (initially hidden)
-                          const adminPanel = document.createElement('div');
-                          adminPanel.id = 'adminPanel';
-                          adminPanel.style.position = 'fixed';
-                          adminPanel.style.bottom = '60px';
-                          adminPanel.style.right = '10px';
-                          adminPanel.style.backgroundColor = '#34495e';
-                          adminPanel.style.color = 'white';
-                          adminPanel.style.padding = '15px';
-                          adminPanel.style.borderRadius = '8px';
-                          adminPanel.style.width = '300px';
-                          adminPanel.style.boxShadow = '0 2px 10px rgba(0,0,0,0.5)';
-                          adminPanel.style.zIndex = '999';
-                          adminPanel.style.display = 'none';
-
-                          adminPanel.innerHTML = `
-        <div style="text-align:center;margin-bottom:15px;font-weight:bold;color:#e74c3c;">
-          ADMIN PANEL - RESTRICTED ACCESS
-        </div>
-        <div style="display:flex;flex-direction:column;gap:10px;">
-          <button id="diagnosticsBtn" style="background:#3498db;border:none;color:white;padding:8px;border-radius:4px;cursor:pointer;">
-            Run Diagnostics
-          </button>
-          <button id="clearDataBtn" style="background:#e74c3c;border:none;color:white;padding:8px;border-radius:4px;cursor:pointer;">
-            Clear All Data
-          </button>
-          <button id="exportDataBtn" style="background:#27ae60;border:none;color:white;padding:8px;border-radius:4px;cursor:pointer;">
-            Export Data
-          </button>
-          <button id="closeAdminBtn" style="background:#7f8c8d;border:none;color:white;padding:8px;border-radius:4px;cursor:pointer;margin-top:10px;">
             Close
           </button>
         </div>
