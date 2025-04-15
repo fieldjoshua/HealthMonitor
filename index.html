@@ -693,34 +693,34 @@
     
     /* Color variants for sections based on dashboard colors */
     .med-color { color: #e74c3c; border-color: #e74c3c; }
-    .med-bg { background-color: rgba(231, 76, 60, 0.05); }
+    .med-bg { background-color: rgba(231, 76, 60, 0.07); }
     
     .weight-color { color: #1abc9c; border-color: #1abc9c; }
-    .weight-bg { background-color: rgba(26, 188, 156, 0.05); }
+    .weight-bg { background-color: rgba(26, 188, 156, 0.07); }
     
     .bm-color { color: #27ae60; border-color: #27ae60; }
-    .bm-bg { background-color: rgba(39, 174, 96, 0.05); }
+    .bm-bg { background-color: rgba(39, 174, 96, 0.07); }
     
     .drink-color { color: #3498db; border-color: #3498db; }
-    .drink-bg { background-color: rgba(52, 152, 219, 0.05); }
+    .drink-bg { background-color: rgba(52, 152, 219, 0.07); }
     
     .meals-color { color: #f1c40f; border-color: #f1c40f; }
-    .meals-bg { background-color: rgba(241, 196, 15, 0.05); }
+    .meals-bg { background-color: rgba(241, 196, 15, 0.07); }
     
     .sleep-color { color: #8e44ad; border-color: #8e44ad; }
-    .sleep-bg { background-color: rgba(142, 68, 173, 0.05); }
+    .sleep-bg { background-color: rgba(142, 68, 173, 0.07); }
     
     .activity-color { color: #e67e22; border-color: #e67e22; }
-    .activity-bg { background-color: rgba(230, 126, 34, 0.05); }
+    .activity-bg { background-color: rgba(230, 126, 34, 0.07); }
     
     .mental-color { color: #2ecc71; border-color: #2ecc71; }
-    .mental-bg { background-color: rgba(46, 204, 113, 0.05); }
+    .mental-bg { background-color: rgba(46, 204, 113, 0.07); }
     
     .symptom-color { color: #f39c12; border-color: #f39c12; }
-    .symptom-bg { background-color: rgba(243, 156, 18, 0.05); }
+    .symptom-bg { background-color: rgba(243, 156, 18, 0.07); }
     
     .notes-color { color: #34495e; border-color: #34495e; }
-    .notes-bg { background-color: rgba(52, 73, 94, 0.05); }
+    .notes-bg { background-color: rgba(52, 73, 94, 0.07); }
     
     /* Set color-themed borders for info cards */
     .info-card.themed-border {
@@ -733,7 +733,7 @@
   <!-- Create a hero section at the top of the page with the liver image -->
   <div class="hero-section">
     <img src="liver-hero.png" alt="Healthy Liver Hero" class="liver-hero">
-    <h1>Health Monitoring Dashboard</h1>
+  <h1>Health Monitoring Dashboard</h1>
   </div>
   <!-- DEVELOPER GUIDE: Custom Graphics Implementation
            To add custom graphics to your cards, follow these formats:
@@ -898,7 +898,7 @@
     <button class="btn-back" onclick="closeSection()">← Back to Dashboard</button>
     <div class="section-header">
       <div class="icon med-color"><i class="fas fa-pills"></i></div>
-      <h2>Today's Medications</h2>
+    <h2>Today's Medications</h2>
     </div>
     <div class="info-card themed-border med-color">
       <strong>Important Medication Instructions:</strong><br>
@@ -962,7 +962,7 @@
     <button class="btn-back" onclick="closeSection()">← Back to Dashboard</button>
     <div class="section-header">
       <div class="icon bm-color"><i class="fas fa-poo"></i></div>
-      <h2>Bowel Movement Reporting</h2>
+    <h2>Bowel Movement Reporting</h2>
     </div>
     <div class="info-card themed-border bm-color">
       Target: 2–3 soft stools per day (Lactulose dose should be adjusted to achieve this)
@@ -1011,7 +1011,7 @@
     <button class="btn-back" onclick="closeSection()">← Back to Dashboard</button>
     <div class="section-header">
       <div class="icon drink-color"><i class="fas fa-tint"></i></div>
-      <h2>Drink Intake Reporting</h2>
+    <h2>Drink Intake Reporting</h2>
     </div>
     <div class="info-card themed-border drink-color">
       Target: 1.5–2 liters of water daily (about 6-8 cups)
@@ -1044,7 +1044,7 @@
     <button class="btn-back" onclick="closeSection()">← Back to Dashboard</button>
     <div class="section-header">
       <div class="icon meals-color"><i class="fas fa-utensils"></i></div>
-      <h2>Meals & Nutrition Reporting</h2>
+    <h2>Meals & Nutrition Reporting</h2>
     </div>
     <div class="info-card themed-border meals-color">
       <strong>Nutritional Guidelines:</strong><br>
@@ -1101,8 +1101,8 @@
         <option>Moderate sodium</option>
         <option>High sodium</option>
       </select>
-      </div>
-      <div class="input-group">
+    </div>
+    <div class="input-group">
       <label>Appetite:</label>
       <select id="appetite">
         <option value="">Select</option>
@@ -1119,7 +1119,7 @@
     <button class="btn-back" onclick="closeSection()">← Back to Dashboard</button>
     <div class="section-header">
       <div class="icon sleep-color"><i class="fas fa-bed"></i></div>
-      <h2>Sleep Reporting</h2>
+    <h2>Sleep Reporting</h2>
     </div>
     <div class="input-group">
       <label>I slept (hours):</label>
@@ -1153,7 +1153,7 @@
     <button class="btn-back" onclick="closeSection()">← Back to Dashboard</button>
     <div class="section-header">
       <div class="icon activity-color"><i class="fas fa-running"></i></div>
-      <h2>Activity Reporting</h2>
+    <h2>Activity Reporting</h2>
     </div>
     <div class="info-card themed-border activity-color">
       <strong>Activity Guidelines:</strong><br>
@@ -1201,7 +1201,7 @@
     <button class="btn-back" onclick="closeSection()">← Back to Dashboard</button>
     <div class="section-header">
       <div class="icon mental-color"><i class="fas fa-brain"></i></div>
-      <h2>Mental &amp; Physical Tests</h2>
+    <h2>Mental &amp; Physical Tests</h2>
     </div>
     <div class="info-card themed-border mental-color">
       Complete at least 2 tests below to mark this section as complete.
@@ -1244,7 +1244,7 @@
     <button class="btn-back" onclick="closeSection()">← Back to Dashboard</button>
     <div class="section-header">
       <div class="icon symptom-color"><i class="fas fa-stethoscope"></i></div>
-      <h2>Physical Symptoms Reporting</h2>
+    <h2>Physical Symptoms Reporting</h2>
     </div>
     <div class="info-card themed-border symptom-color" style="border-left: 3px solid #e74c3c;">
       <strong>IMPORTANT - DO NOT USE:</strong><br>
@@ -1292,36 +1292,36 @@
           </div>
           </div>
       
-      <div class="input-group">
-        <label>Severity:</label>
-        <select id="severitySelect">
-          <option value="">Select severity</option>
-          <option>Mild</option>
-          <option>Moderate</option>
-          <option>Severe</option>
-          </select>
-          </div>
+    <div class="input-group">
+      <label>Severity:</label>
+      <select id="severitySelect">
+        <option value="">Select severity</option>
+        <option>Mild</option>
+        <option>Moderate</option>
+        <option>Severe</option>
+      </select>
+    </div>
       
-      <div class="input-group">
-        <label>Notes (optional):</label>
-        <select id="symptomNotes">
-          <option value="">Select or leave blank</option>
-          <option>Morning only</option>
-          <option>Afternoon only</option>
-          <option>Evening only</option>
-          <option>All day</option>
-          <option>After meals</option>
-          <option>Before meals</option>
-          <option>During activity</option>
-          <option>At rest</option>
-          <option>Interferes with sleep</option>
-          <option>Improves with medication</option>
-          <option>No change with medication</option>
-          <option>Worse than yesterday</option>
-          <option>Better than yesterday</option>
-          <option>Same as yesterday</option>
-        </select>
-      </div>
+    <div class="input-group">
+      <label>Notes (optional):</label>
+      <select id="symptomNotes">
+        <option value="">Select or leave blank</option>
+        <option>Morning only</option>
+        <option>Afternoon only</option>
+        <option>Evening only</option>
+        <option>All day</option>
+        <option>After meals</option>
+        <option>Before meals</option>
+        <option>During activity</option>
+        <option>At rest</option>
+        <option>Interferes with sleep</option>
+        <option>Improves with medication</option>
+        <option>No change with medication</option>
+        <option>Worse than yesterday</option>
+        <option>Better than yesterday</option>
+        <option>Same as yesterday</option>
+      </select>
+    </div>
       <button class="save-btn" onclick="recordSelectedSymptoms()">Record Symptoms</button>
       </div>
     <!-- Display recorded symptoms -->
@@ -1335,7 +1335,7 @@
     <button class="btn-back" onclick="closeSection()">← Back to Dashboard</button>
     <div class="section-header">
       <div class="icon notes-color"><i class="fas fa-sticky-note"></i></div>
-      <h2>Notes &amp; Additional Comments</h2>
+    <h2>Notes &amp; Additional Comments</h2>
     </div>
     <div class="input-group">
       <textarea id="notesText" placeholder="Enter any observations, concerns, or questions..."></textarea>
@@ -1704,7 +1704,7 @@
     
                             // New weight record
                             let weightRecord = JSON.parse(localStorage.getItem('weightRecord')) || {};
-                          
+
     // Handle bowel movement record - could be string or object based on app version
     let bmRecord = {};
     try {
@@ -2676,7 +2676,7 @@
       const diagnosticsDiv = document.createElement('div');
                           diagnosticsDiv.className = 'diagnostics-container';
 
-                          diagnosticsDiv.innerHTML = `
+      diagnosticsDiv.innerHTML = `
         <h3 class="diagnostics-header">Connection Diagnostics</h3>
         <div id="diagnosticsResults" class="diagnostics-results"></div>
         <div class="diagnostics-buttons">
@@ -3743,9 +3743,9 @@
           }
         }
 
-              /* -------------------------
+    /* -------------------------
                  Add Diagnostics Button
-                 ------------------------- */
+       ------------------------- */
               function addAdminSection() {
                 // Remove the original diagnostics button if it exists
                 const existingButton = document.querySelector('button[innerHTML="Diagnostics"]');
@@ -4166,12 +4166,12 @@
                 }
 
                 // At page initialization, set the connection status display correctly
-                window.addEventListener('DOMContentLoaded', () => {
-                  document.getElementById('dashboard').style.display = 'flex';
-                  
+          window.addEventListener('DOMContentLoaded', () => {
+            document.getElementById('dashboard').style.display = 'flex';
+        
                   // Set up the sync toggle button and update initial display
-                  document.getElementById('toggleSyncMode').addEventListener('click', toggleSyncMode);
-                  
+          document.getElementById('toggleSyncMode').addEventListener('click', toggleSyncMode);
+        
                   // Start with a connection test if Google Sheets is enabled
                   if (!CONFIG.localModeOnly && CONFIG.enableGoogleSheets) {
                     const statusBar = document.getElementById('connectionStatusBar');
@@ -4204,24 +4204,24 @@
                   if (checkChartJsLoaded()) {
                     // Start the chart initialization with retry mechanism
                     setTimeout(() => initChartsWithRetry(0), 100);
-                  }
-                  
-                  generateMedTable();
-                  
+          }
+
+          generateMedTable();
+        
                   // Add admin section instead of simple diagnostics button
                   addAdminSection();
-                  
-                  // Check for existing data
-                  const hasExistingData = 
-                    (localStorage.getItem('medicationRecords') && JSON.parse(localStorage.getItem('medicationRecords')).length > 0) ||
-                    localStorage.getItem('bmRecord') || 
-                    localStorage.getItem('drinkRecord') ||
-                    localStorage.getItem('mealsRecord');
-                  
-                  if (hasExistingData) {
-                    console.log("Found existing data in local storage");
-                  }
-                });
+
+          // Check for existing data
+          const hasExistingData =
+            (localStorage.getItem('medicationRecords') && JSON.parse(localStorage.getItem('medicationRecords')).length > 0) ||
+            localStorage.getItem('bmRecord') ||
+            localStorage.getItem('drinkRecord') ||
+            localStorage.getItem('mealsRecord');
+
+          if (hasExistingData) {
+            console.log("Found existing data in local storage");
+          }
+        });
 
                 // Connect the original initCharts function to our new retry function
                 function initCharts() {
@@ -4249,7 +4249,7 @@
       hideChecklist();
     }
   }
-              </script>
+</script>
     <!-- Footer with logo and copyright -->
     <footer class="footer">
       <div class="logo-container">
@@ -4266,5 +4266,5 @@
       </div>
       <div>© ForresterField, 2025</div>
     </footer>
-  </body>
+</body>
 </html>
