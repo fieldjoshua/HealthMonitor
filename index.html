@@ -16,8 +16,8 @@
     rel="stylesheet">
   <!-- External CSS file -->
   <link rel="stylesheet" href="styles.css">
-  <!-- Chart.js for doughnut graphs - Use CDN for reliability -->
-  <script src="https://cdn.jsdelivr.net/npm/chart.js@3.7.1/dist/chart.min.js"></script>
+  <!-- Chart.js for doughnut graphs - Use our local copy -->
+  <script src="chart.min.js"></script>
   <style>
     /* Modern design system with Questrial font, updated color palette */
     :root {
@@ -200,7 +200,6 @@
     }
     
     .progress-bar-container {
-      height: 6px;
       width: 100%;
       height: 8px;
       background: rgba(255,255,255,0.1);
@@ -694,34 +693,34 @@
     
     /* Color variants for sections based on dashboard colors */
     .med-color { color: #e74c3c; border-color: #e74c3c; }
-    .med-bg { background-color: rgba(231, 76, 60, 0.07); }
+    .med-bg { background-color: rgba(231, 76, 60, 0.05); }
     
     .weight-color { color: #1abc9c; border-color: #1abc9c; }
-    .weight-bg { background-color: rgba(26, 188, 156, 0.07); }
+    .weight-bg { background-color: rgba(26, 188, 156, 0.05); }
     
-    .bm-color { color: #8B4513; border-color: #8B4513; }
-    .bm-bg { background-color: rgba(139, 69, 19, 0.07); }
+    .bm-color { color: #27ae60; border-color: #27ae60; }
+    .bm-bg { background-color: rgba(39, 174, 96, 0.05); }
     
     .drink-color { color: #3498db; border-color: #3498db; }
-    .drink-bg { background-color: rgba(52, 152, 219, 0.07); }
+    .drink-bg { background-color: rgba(52, 152, 219, 0.05); }
     
     .meals-color { color: #f1c40f; border-color: #f1c40f; }
-    .meals-bg { background-color: rgba(241, 196, 15, 0.07); }
+    .meals-bg { background-color: rgba(241, 196, 15, 0.05); }
     
     .sleep-color { color: #8e44ad; border-color: #8e44ad; }
-    .sleep-bg { background-color: rgba(142, 68, 173, 0.07); }
+    .sleep-bg { background-color: rgba(142, 68, 173, 0.05); }
     
     .activity-color { color: #e67e22; border-color: #e67e22; }
-    .activity-bg { background-color: rgba(230, 126, 34, 0.07); }
+    .activity-bg { background-color: rgba(230, 126, 34, 0.05); }
     
     .mental-color { color: #2ecc71; border-color: #2ecc71; }
-    .mental-bg { background-color: rgba(46, 204, 113, 0.07); }
+    .mental-bg { background-color: rgba(46, 204, 113, 0.05); }
     
     .symptom-color { color: #f39c12; border-color: #f39c12; }
-    .symptom-bg { background-color: rgba(243, 156, 18, 0.07); }
+    .symptom-bg { background-color: rgba(243, 156, 18, 0.05); }
     
     .notes-color { color: #34495e; border-color: #34495e; }
-    .notes-bg { background-color: rgba(52, 73, 94, 0.07); }
+    .notes-bg { background-color: rgba(52, 73, 94, 0.05); }
     
     /* Set color-themed borders for info cards */
     .info-card.themed-border {
@@ -762,20 +761,27 @@
       -->
   <!-- MAIN DASHBOARD -->
   <div id="dashboard">
-    <!-- Total Progress Card with reduced height -->
-    <div class="progress-card" style="padding: 10px 16px;">
-      <div class="total-progress-container" style="display: flex; justify-content: space-between; align-items: center;">
+    <!-- Connection Status will be inserted here by JS -->
+    <div id="connectionStatusBar">
+      <span>⏳ Connecting to Google Sheets...</span>
+      <button id="toggleSyncMode">
+        Use Local Storage
+      </button>
+    </div>
+    
+    <!-- Total Progress Card -->
+    <div class="progress-card">
+      <div class="total-progress-container">
         <div class="total-progress-info">
           <div class="title">Total Progress</div>
           <div class="subtitle">Daily health accomplishments</div>
         </div>
-        <div id="totalProgressDisplay" style="font-size: 18px; font-weight: bold;">0%</div>
+        <div id="totalProgressDisplay">0%</div>
       </div>
-      <div class="progress-bar-container" style="height: 6px; margin-top: 8px;">
+      <div class="progress-bar-container">
         <div id="totalProgressBar" class="progress-bar" style="width:0%;"></div>
       </div>
-      <button id="infoButton" class="info-button" onclick="showChecklist()"
-        style="margin-top: 8px; padding: 4px 8px; font-size: 13px;">
+      <button id="infoButton" class="info-button" onclick="showChecklist()">
         <i class="fas fa-info-circle"></i> Daily Checklist
       </button>
     </div>
@@ -815,7 +821,7 @@
     </div>
     <!-- Bowel Movements Card -->
     <div class="card" onclick="openSection('bmSection')">
-      <div class="icon"><i class="fas fa-poo" style="color:#8B4513;"></i></div>
+      <div class="icon"><i class="fas fa-poo" style="color:#27ae60;"></i></div>
       <div class="chart-container">
         <canvas id="bmChart"></canvas>
         <div class="chart-label" id="bmChartLabel"><span>0/3</span></div>
@@ -884,13 +890,6 @@
         <div class="chart-label" id="notesChartLabel"><i class="fas fa-comment"></i></div>
       </div>
       <div class="label">Notes</div>
-    </div>
-    <!-- Connection Status moved below the modules -->
-    <div id="connectionStatusBar">
-      <span>⏳ Connecting to Google Sheets...</span>
-      <button id="toggleSyncMode">
-        Use Local Storage
-      </button>
     </div>
   </div>
 
@@ -1480,7 +1479,7 @@
           // Create each chart
           medChart = createChartWithFallback(chartCanvases.medChart, '#e74c3c');
           weightChart = createChartWithFallback(chartCanvases.weightChart, '#1abc9c');
-          bmChart = createChartWithFallback(chartCanvases.bmChart, '#8B4513');
+          bmChart = createChartWithFallback(chartCanvases.bmChart, '#27ae60');
           drinkChart = createChartWithFallback(chartCanvases.drinkChart, '#3498db');
           mealsChart = createChartWithFallback(chartCanvases.mealsChart, '#f1c40f');
           sleepChart = createChartWithFallback(chartCanvases.sleepChart, '#8e44ad');
@@ -1962,7 +1961,7 @@
     function initCharts() {
       medChart = createChart(document.getElementById('medChart').getContext('2d'), '#e74c3c');
       weightChart = createChart(document.getElementById('weightChart').getContext('2d'), '#1abc9c');
-      bmChart = createChart(document.getElementById('bmChart').getContext('2d'), '#8B4513');
+      bmChart = createChart(document.getElementById('bmChart').getContext('2d'), '#27ae60');
       drinkChart = createChart(document.getElementById('drinkChart').getContext('2d'), '#3498db');
       mealsChart = createChart(document.getElementById('mealsChart').getContext('2d'), '#f1c40f');
       sleepChart = createChart(document.getElementById('sleepChart').getContext('2d'), '#8e44ad');
@@ -3054,7 +3053,7 @@
                         }
 
                         /* -------------------------
-                           Add Admin Section
+                           Add Diagnostics Button
                            ------------------------- */
                         function addAdminSection() {
                           // Remove the original diagnostics button if it exists
@@ -3328,7 +3327,7 @@
                         }
 
                         /* -------------------------
-                           Add Admin Section
+                           Add Diagnostics Button
                            ------------------------- */
                         function addAdminSection() {
                           // Remove the original diagnostics button if it exists
@@ -3476,8 +3475,8 @@
                         async function runDiagnostics() {
                           const diagnosticsDiv = document.createElement('div');
                           diagnosticsDiv.className = 'diagnostics-container';
-
-                          diagnosticsDiv.innerHTML = `
+                      
+      diagnosticsDiv.innerHTML = `
         <h3 class="diagnostics-header">Connection Diagnostics</h3>
         <div id="diagnosticsResults" class="diagnostics-results"></div>
         <div class="diagnostics-buttons">
@@ -3490,366 +3489,176 @@
           <button id="testCustom" class="admin-btn">Test Custom Endpoint</button>
         </div>
       `;
+      
+      document.body.appendChild(diagnosticsDiv);
+      
+      const resultsDiv = document.getElementById('diagnosticsResults');
+      
+      document.getElementById('closeDiagnostics').addEventListener('click', () => {
+        document.body.removeChild(diagnosticsDiv);
+      });
+      
+      document.getElementById('testHttpbin').addEventListener('click', async () => {
+        resultsDiv.innerHTML += `<div style="margin:5px 0;border-bottom:1px dashed #555;padding-bottom:5px;">Testing httpbin.org POST...</div>`;
+        try {
+          const response = await fetch('https://httpbin.org/post', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({test: 'connection'})
+          });
+          
+          const data = await response.json();
+          resultsDiv.innerHTML += `<div style="color:#2ecc71;">✓ Httpbin test successful!</div>`;
+          resultsDiv.innerHTML += `<div style="max-height:100px;overflow:auto;background:#2c2c2c;padding:5px;margin:5px 0;border-radius:4px;">${JSON.stringify(data, null, 2)}</div>`;
+        } catch (error) {
+          resultsDiv.innerHTML += `<div style="color:#e74c3c;">✗ Httpbin test failed: ${error.message}</div>`;
+        }
+      });
+      
+      document.getElementById('testAppScript').addEventListener('click', async () => {
+        resultsDiv.innerHTML += `<div style="margin:5px 0;border-bottom:1px dashed #555;padding-bottom:5px;">Testing Google Apps Script URL...</div>`;
+        
+        // First test with GET request
+        try {
+          resultsDiv.innerHTML += `<div>Testing GET request...</div>`;
+          const getResponse = await fetch(CONFIG.googleSheetsApiUrl);
+          const getStatus = getResponse.status;
+          resultsDiv.innerHTML += `<div>GET Status: ${getStatus}</div>`;
+          
+          try {
+            const getData = await getResponse.json();
+            resultsDiv.innerHTML += `<div style="color:#2ecc71;">✓ GET response parsed as JSON</div>`;
+            resultsDiv.innerHTML += `<div style="max-height:100px;overflow:auto;background:#2c2c2c;padding:5px;margin:5px 0;border-radius:4px;">${JSON.stringify(getData, null, 2)}</div>`;
+          } catch (e) {
+            const getText = await getResponse.text();
+            resultsDiv.innerHTML += `<div style="color:#e74c3c;">✗ GET response is not valid JSON</div>`;
+            resultsDiv.innerHTML += `<div style="max-height:100px;overflow:auto;background:#2c2c2c;padding:5px;margin:5px 0;border-radius:4px;white-space:pre-wrap;font-size:10px;">${getText.substring(0, 500)}${getText.length > 500 ? '...' : ''}</div>`;
+          }
+        } catch (error) {
+          resultsDiv.innerHTML += `<div style="color:#e74c3c;">✗ GET request failed: ${error.message}</div>`;
+        }
+        
+        // Then test with POST request
+        try {
+          resultsDiv.innerHTML += `<div>Testing POST request...</div>`;
+          const postResponse = await fetch(CONFIG.googleSheetsApiUrl, {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({test: 'connection'})
+          });
+          
+          const postStatus = postResponse.status;
+          resultsDiv.innerHTML += `<div>POST Status: ${postStatus}</div>`;
+          
+          try {
+            const postData = await postResponse.json();
+            resultsDiv.innerHTML += `<div style="color:#2ecc71;">✓ POST response parsed as JSON</div>`;
+            resultsDiv.innerHTML += `<div style="max-height:100px;overflow:auto;background:#2c2c2c;padding:5px;margin:5px 0;border-radius:4px;">${JSON.stringify(postData, null, 2)}</div>`;
+          } catch (e) {
+            const postText = await postResponse.text();
+            resultsDiv.innerHTML += `<div style="color:#e74c3c;">✗ POST response is not valid JSON</div>`;
+            resultsDiv.innerHTML += `<div style="max-height:100px;overflow:auto;background:#2c2c2c;padding:5px;margin:5px 0;border-radius:4px;white-space:pre-wrap;font-size:10px;">${postText.substring(0, 500)}${postText.length > 500 ? '...' : ''}</div>`;
+          }
+        } catch (error) {
+          resultsDiv.innerHTML += `<div style="color:#e74c3c;">✗ POST request failed: ${error.message}</div>`;
+        }
+        
+        resultsDiv.innerHTML += `<div style="margin:5px 0;border-bottom:1px dashed #555;padding-bottom:5px;">URL being tested: ${CONFIG.googleSheetsApiUrl}</div>`;
+      });
+      
+      document.getElementById('testCustom').addEventListener('click', async () => {
+        const customUrl = document.getElementById('customEndpoint').value;
+        if (!customUrl) {
+          resultsDiv.innerHTML += `<div style="color:#e74c3c;">Please enter a URL to test</div>`;
+          return;
+        }
+        
+        resultsDiv.innerHTML += `<div style="margin:5px 0;border-bottom:1px dashed #555;padding-bottom:5px;">Testing custom URL: ${customUrl}</div>`;
+        
+        try {
+          resultsDiv.innerHTML += `<div>Testing GET request...</div>`;
+          const getResponse = await fetch(customUrl);
+          const getStatus = getResponse.status;
+          resultsDiv.innerHTML += `<div>GET Status: ${getStatus}</div>`;
+          
+          try {
+            const getData = await getResponse.json();
+            resultsDiv.innerHTML += `<div style="color:#2ecc71;">✓ GET response parsed as JSON</div>`;
+            resultsDiv.innerHTML += `<div style="max-height:100px;overflow:auto;background:#2c2c2c;padding:5px;margin:5px 0;border-radius:4px;">${JSON.stringify(getData, null, 2)}</div>`;
+          } catch (e) {
+            const getText = await getResponse.text();
+            resultsDiv.innerHTML += `<div style="color:#e74c3c;">✗ GET response is not valid JSON</div>`;
+            resultsDiv.innerHTML += `<div style="max-height:100px;overflow:auto;background:#2c2c2c;padding:5px;margin:5px 0;border-radius:4px;white-space:pre-wrap;font-size:10px;">${getText.substring(0, 500)}${getText.length > 500 ? '...' : ''}</div>`;
+          }
+        } catch (error) {
+          resultsDiv.innerHTML += `<div style="color:#e74c3c;">✗ GET request failed: ${error.message}</div>`;
+        }
+      });
+    }
 
-                          document.body.appendChild(diagnosticsDiv);
+    /* -------------------------
+       Add Diagnostics Button
+       ------------------------- */
+        function addAdminSection() {
+          // Remove the original diagnostics button if it exists
+          const existingButton = document.querySelector('button[innerHTML="Diagnostics"]');
+          if (existingButton) {
+            try {
+              existingButton.parentNode.removeChild(existingButton);
+            } catch (e) {
+              console.warn("Could not remove existing diagnostics button:", e);
+            }
+          }
 
-                          const resultsDiv = document.getElementById('diagnosticsResults');
+          // Create the admin button
+          const adminButton = document.createElement('button');
+          adminButton.innerHTML = '⚙️';
+          adminButton.style.position = 'fixed';
+          adminButton.style.bottom = '10px';
+          adminButton.style.right = '10px';
+          adminButton.style.zIndex = '1000';
+          adminButton.style.backgroundColor = '#34495e';
+          adminButton.style.color = 'white';
+          adminButton.style.border = 'none';
+          adminButton.style.borderRadius = '50%';
+          adminButton.style.width = '40px';
+          adminButton.style.height = '40px';
+          adminButton.style.fontSize = '18px';
+          adminButton.style.cursor = 'pointer';
+          adminButton.style.boxShadow = '0 2px 5px rgba(0,0,0,0.3)';
 
-                          document.getElementById('closeDiagnostics').addEventListener('click', () => {
-                            document.body.removeChild(diagnosticsDiv);
-                          });
+          let adminPanelVisible = false;
 
-                          document.getElementById('testHttpbin').addEventListener('click', async () => {
-                            resultsDiv.innerHTML += `<div style="margin:5px 0;border-bottom:1px dashed #555;padding-bottom:5px;">Testing httpbin.org POST...</div>`;
-                            try {
-                              const response = await fetch('https://httpbin.org/post', {
-                                method: 'POST',
-                                headers: {
-                                  'Content-Type': 'application/json'
-                                },
-                                body: JSON.stringify({ test: 'connection' })
-                              });
+          adminButton.addEventListener('click', () => {
+            if (adminPanelVisible) {
+              hideAdminPanel();
+            } else {
+              showAdminPanel();
+            }
+          });
 
-                              const data = await response.json();
-                              resultsDiv.innerHTML += `<div style="color:#2ecc71;">✓ Httpbin test successful!</div>`;
-                              resultsDiv.innerHTML += `<div style="max-height:100px;overflow:auto;background:#2c2c2c;padding:5px;margin:5px 0;border-radius:4px;">${JSON.stringify(data, null, 2)}</div>`;
-                            } catch (error) {
-                              resultsDiv.innerHTML += `<div style="color:#e74c3c;">✗ Httpbin test failed: ${error.message}</div>`;
-                            }
-                          });
+          document.body.appendChild(adminButton);
 
-                          document.getElementById('testAppScript').addEventListener('click', async () => {
-                            resultsDiv.innerHTML += `<div style="margin:5px 0;border-bottom:1px dashed #555;padding-bottom:5px;">Testing Google Apps Script URL...</div>`;
+          // Create the admin panel (initially hidden)
+          const adminPanel = document.createElement('div');
+          adminPanel.id = 'adminPanel';
+          adminPanel.style.position = 'fixed';
+          adminPanel.style.bottom = '60px';
+          adminPanel.style.right = '10px';
+          adminPanel.style.backgroundColor = '#34495e';
+          adminPanel.style.color = 'white';
+          adminPanel.style.padding = '15px';
+          adminPanel.style.borderRadius = '8px';
+          adminPanel.style.width = '300px';
+          adminPanel.style.boxShadow = '0 2px 10px rgba(0,0,0,0.5)';
+          adminPanel.style.zIndex = '999';
+          adminPanel.style.display = 'none';
 
-                            // First test with GET request
-                            try {
-                              resultsDiv.innerHTML += `<div>Testing GET request...</div>`;
-                              const getResponse = await fetch(CONFIG.googleSheetsApiUrl);
-                              const getStatus = getResponse.status;
-                              resultsDiv.innerHTML += `<div>GET Status: ${getStatus}</div>`;
-
-                              try {
-                                const getData = await getResponse.json();
-                                resultsDiv.innerHTML += `<div style="color:#2ecc71;">✓ GET response parsed as JSON</div>`;
-                                resultsDiv.innerHTML += `<div style="max-height:100px;overflow:auto;background:#2c2c2c;padding:5px;margin:5px 0;border-radius:4px;">${JSON.stringify(getData, null, 2)}</div>`;
-                              } catch (e) {
-                                const getText = await getResponse.text();
-                                resultsDiv.innerHTML += `<div style="color:#e74c3c;">✗ GET response is not valid JSON</div>`;
-                                resultsDiv.innerHTML += `<div style="max-height:100px;overflow:auto;background:#2c2c2c;padding:5px;margin:5px 0;border-radius:4px;white-space:pre-wrap;font-size:10px;">${getText.substring(0, 500)}${getText.length > 500 ? '...' : ''}</div>`;
-                              }
-                            } catch (error) {
-                              resultsDiv.innerHTML += `<div style="color:#e74c3c;">✗ GET request failed: ${error.message}</div>`;
-                            }
-
-                            // Then test with POST request
-                            try {
-                              resultsDiv.innerHTML += `<div>Testing POST request...</div>`;
-                              const postResponse = await fetch(CONFIG.googleSheetsApiUrl, {
-                                method: 'POST',
-                                headers: {
-                                  'Content-Type': 'application/json'
-                                },
-                                body: JSON.stringify({ test: 'connection' })
-                              });
-
-                              const postStatus = postResponse.status;
-                              resultsDiv.innerHTML += `<div>POST Status: ${postStatus}</div>`;
-
-                              try {
-                                const postData = await postResponse.json();
-                                resultsDiv.innerHTML += `<div style="color:#2ecc71;">✓ POST response parsed as JSON</div>`;
-                                resultsDiv.innerHTML += `<div style="max-height:100px;overflow:auto;background:#2c2c2c;padding:5px;margin:5px 0;border-radius:4px;">${JSON.stringify(postData, null, 2)}</div>`;
-                              } catch (e) {
-                                const postText = await postResponse.text();
-                                resultsDiv.innerHTML += `<div style="color:#e74c3c;">✗ POST response is not valid JSON</div>`;
-                                resultsDiv.innerHTML += `<div style="max-height:100px;overflow:auto;background:#2c2c2c;padding:5px;margin:5px 0;border-radius:4px;white-space:pre-wrap;font-size:10px;">${postText.substring(0, 500)}${postText.length > 500 ? '...' : ''}</div>`;
-                              }
-                            } catch (error) {
-                              resultsDiv.innerHTML += `<div style="color:#e74c3c;">✗ POST request failed: ${error.message}</div>`;
-                            }
-
-                            resultsDiv.innerHTML += `<div style="margin:5px 0;border-bottom:1px dashed #555;padding-bottom:5px;">URL being tested: ${CONFIG.googleSheetsApiUrl}</div>`;
-                          });
-
-                          document.getElementById('testCustom').addEventListener('click', async () => {
-                            const customUrl = document.getElementById('customEndpoint').value;
-                            if (!customUrl) {
-                              resultsDiv.innerHTML += `<div style="color:#e74c3c;">Please enter a URL to test</div>`;
-                              return;
-                            }
-
-                            resultsDiv.innerHTML += `<div style="margin:5px 0;border-bottom:1px dashed #555;padding-bottom:5px;">Testing custom URL: ${customUrl}</div>`;
-
-                            try {
-                              resultsDiv.innerHTML += `<div>Testing GET request...</div>`;
-                              const getResponse = await fetch(customUrl);
-                              const getStatus = getResponse.status;
-                              resultsDiv.innerHTML += `<div>GET Status: ${getStatus}</div>`;
-
-                              try {
-                                const getData = await getResponse.json();
-                                resultsDiv.innerHTML += `<div style="color:#2ecc71;">✓ GET response parsed as JSON</div>`;
-                                resultsDiv.innerHTML += `<div style="max-height:100px;overflow:auto;background:#2c2c2c;padding:5px;margin:5px 0;border-radius:4px;">${JSON.stringify(getData, null, 2)}</div>`;
-                              } catch (e) {
-                                const getText = await getResponse.text();
-                                resultsDiv.innerHTML += `<div style="color:#e74c3c;">✗ GET response is not valid JSON</div>`;
-                                resultsDiv.innerHTML += `<div style="max-height:100px;overflow:auto;background:#2c2c2c;padding:5px;margin:5px 0;border-radius:4px;white-space:pre-wrap;font-size:10px;">${getText.substring(0, 500)}${getText.length > 500 ? '...' : ''}</div>`;
-                              }
-                            } catch (error) {
-                              resultsDiv.innerHTML += `<div style="color:#e74c3c;">✗ GET request failed: ${error.message}</div>`;
-                            }
-                          });
-                        }
-
-                        /* -------------------------
-                           Add Admin Section
-                           ------------------------- */
-                        function addAdminSection() {
-                          // Remove the original diagnostics button if it exists
-                          const existingButton = document.querySelector('button[innerHTML="Diagnostics"]');
-                          if (existingButton) {
-                            try {
-                              existingButton.parentNode.removeChild(existingButton);
-                            } catch (e) {
-                              console.warn("Could not remove existing diagnostics button:", e);
-                            }
-                          }
-
-                          // Create the admin button
-                          const adminButton = document.createElement('button');
-                          adminButton.innerHTML = '⚙️';
-                          adminButton.style.position = 'fixed';
-                          adminButton.style.bottom = '10px';
-                          adminButton.style.right = '10px';
-                          adminButton.style.zIndex = '1000';
-                          adminButton.style.backgroundColor = '#34495e';
-                          adminButton.style.color = 'white';
-                          adminButton.style.border = 'none';
-                          adminButton.style.borderRadius = '50%';
-                          adminButton.style.width = '40px';
-                          adminButton.style.height = '40px';
-                          adminButton.style.fontSize = '18px';
-                          adminButton.style.cursor = 'pointer';
-                          adminButton.style.boxShadow = '0 2px 5px rgba(0,0,0,0.3)';
-
-                          let adminPanelVisible = false;
-
-                          adminButton.addEventListener('click', () => {
-                            if (adminPanelVisible)                                                                                   }                                        showAdmi                                        }
-                                                           document.bod                            ;
-
-                          // Create the admin panel                                                const adminPanel = document.createElement('div');
-                                          = 'adminPanel';
-                                   nel.st                                                    adminPanel.style.bottom = '60px';
-                               inPanel.style.                                            adminPanel.style.backgroundColor = '#34495e';
-                                      .s                                                           nel.style.padding = '15px';                             adminPanel.style.borderRadius = '8px';
-                                          le.width = '300px';
-                                      .style.boxShadow = '0 2px 10px rgba(0,                                       adminPanel.style.zIndex                                      adminPanel.style.display                                        adminPanel.innerHTML = `                            align:center;margin-bottom:15px;font-weight:bol                               ADMIN PANEL - RESTRICTED ACCESS
-                            v style="display:flex;flex-directio                                 <button id="diagnosticsBtn" style="                            none;color:white;padding:8px;borde                            r;">
-            Run Diagnostics
-                                <button id="clearDataBtn" style="ba                            ne;color:white;padding:8px;border-radi                                       Clear All Data
-          </button>
-          <but                            le="background:#27ae60;border:no                            ;border-radius:4px;cursor:pointer;">
-                                       utton>
-          <button                                 ground:#7f8c8d;bor                              :8px;bord                                argin-top:10px;">
-                              </                               `;                              document.body.appendChild(adminPanel);
-                             // Function to show the admin panel
-                                     showAdminPanel() {
-                            ad                            block';
-                                                  true;
-
-                            //                            ttons
-                                                        iagnosticsBtn').addEventListener(                                                        document.getElemen                            ventListener('click', confirmClear                                     document.getElementById('e                            tener('click', exportData);
-                                       getElementById('closeAdminBtn').ad                            deAdminPanel);
-                          }
-
-                                           hide the admin panel
-                                        eAdminPanel() {
-                                                isplay = 'none';
-                            adminPanelVisible = false;
-                          }
-
-                          // Function to confirm data clearing
-                          function confirmClearData() {
-                            const confirmed = confirm("WARNING: This will delete ALL data, including archived data. This cannot be undone. Are you sure?");
-                            if (confirmed) {
-                              localStorage.clear();
-                              alert("All data has been cleared. The page will now reload.");
-                              location.reload();
-                            }
-                          }
-
-                          // Function to export data
-                          function exportData() {
-                            try {
-                              const allData = {
-                                currentDate: new Date().toISOString(),
-                                todayKey: todayKey,
-                                            Records: medicationRecords,
-                                        Record: weightRecord,
-                                          : bmRecord,
-                                               drinkRecord,
-                                                    Record,
-                                                 eepRecord,
-                                                     ivityRecord,
-                                mentalRecord: mentalRecord,
-                                          Symptoms: physicalSymptoms,
-                                notesRecord: notesRecord,                                   archive: JSON.parse(localStorage.getItem('healthArchive') || '{}')
-                                                                  const dataStr = JSON.stringify(allData, null, 2);
-                                  nst                            on/json;charset=utf-8,' + encodeURIC                                                    cons                              ealth_data_export_' + new Date().to                              .json';
-
-                                              ent                            'a');
-                              l                            ref', dataUri);
-                                            setAttribute('download', exportFileDefaultName);
-                              linkElement.click();
-                                                                                                           ing data:", error);
-                                  ert("Error exporting data: " + error.message);
-                                                          }
-                                                                   ---                                           Connection D                                        ------------                                                                    ostics() {
-                                         ticsDiv = document.createElement('div')                                  nosticsDiv.className                                                         diagnosticsDiv.                                  "diagnostics-header">Connect                                  v id="diagnosticsRes                                  "></div>
-        <div clas                                     <button id="closeDiagno                                  n-danger">Close</button>
-                                   " class="admin-btn admin-btn-pri                                        <button id="testAppScr                                  success">Test Apps Script</button>
-                                   ="diagnostics-custom">
-                                     " type="text" placeholder="Enter custom endpoint to test">
-                                        s="a                                </button>
-        </div>
-      `;
-
-                                               dChild(diagnosticsDiv);
-
-                          const resultsDiv = document.getEleme                                
-                          document.getElementById('closeDiagnostics').addEventListener('click', () => {                                ocument.body.removeChild(diagnosticsDiv);
-                                                           document.getElementById                                er('click', async () => {
-                            results                                margin:5px 0;border-b                              g-bottom:5px;">Tes                                `;
-                            try {
-                                          onse = await fetch('https://httpbin.org/post', {
-                                                                                        ade                                          'Content-Type                                                                                             body: JSON.string                           })
-                                                                   const data = await response.json();
-                                     tsDiv.innerHTML += `<div style="color:#2ecc71;">✓ Htt                            >`;
-                              resultsDiv.innerHTML += `<div style="max-height:100px;overflow:auto;background:#2c2c2c;padding:5px;margin:5px 0;border-radius:4px;">${JSON.stringify(data, null, 2)}</div>`;
-                            } catch (error) {
-                              resultsDiv.innerHTML += `<div style="color:#e74c3c;">✗ Httpbin test failed: ${error.message}</div>`;
-                            }
-                          });
-
-                          document.getElementById('testAppScript').addEventListener('click', async () => {
-                            resultsDiv.innerHTML += `<div style="margin:5px 0;border-bottom:1px dashed #555;padding-bottom:5px;">Testing Google Apps Script URL...</div>`;
-
-                                                     request
-                            try {
-                                resultsDiv.innerHTML += `<div>Testing GET request...</div>`;
-                                const getResponse = await fetch(CONFIG.googleSheetsApiUrl);
-                                                = getResponse.status;
-                                                 TML +                            tatus}</div>`;
-
-                              try {
-                                                         etResponse.json();
-                                resultsDiv.innerHTML += `<div style="color:#2ecc71;">✓ GET response parsed as JSON</di                                                                    iv style="max-height:100px;overflow:auto;background:#2c2c2c                                  -radius:4px;">${                                  }</div>`;
-                                     ch (e) {
-                                                            esp                                               resultsDiv.innerHTML += `<div st                                ponse                                                             results                                max-height:100px;overflow:auto;background:#2c2c2c;padding:5px;margin:5px 0;border-radius                                -size:10px;">${getText.substring(0, 500)}${getText.length > 500 ? '...' : ''}</div>`;
-                              }
-                            } catch (error) {
-                                       Div.innerHTML += `                                GET request failed: ${error.message}</div>`;
-                            }
-
-                                                       qu                                                                        resultsDiv.innerHTML += `<div>Testing POST request...</div>`;
-                                      postResponse = await fetch(CONFIG.googleSheetsApiUrl, {
-                                method: 'POST',
-                                headers:                                       'Content-Type': 'appli                                                                                    body: JSON.stringify({ test: 'connection' })
-                                });
-
-                              const postStatus = postRe                                               resultsDiv.innerHTML +=                                us}</div>`;
-
-                              try {
-                                               a = aw                                                           resultsDiv.innerH                                  1;">✓ POST response parsed as JSON</div>`;
-                                resultsDiv.inner                                  100px;overflow:auto;background:#2c2c2c;padding:5px;margin:5px 0;border-radius:4px;">${JSON.stringify(postData, null, 2)}</div>`;
-                              } catch (e) {
-                                   onst postText                                                                resultsDiv.in                                  74c3c;">✗ POST response is not valid JSON</div>`;
-                                resultsDiv.i                                  ght:100px;overflow:auto;background:#2c2c2c;padding:5px;margin:5px 0;border-radius:4px;white-space:pre-wrap;font-size:10px;">${postText.substring(0, 500)}${postText.length > 500 ? '...' : ''}</div>`;
-                              }
-                                          or                                    resultsDiv.i                                :#e74c3c;">✗ POST request failed: ${error.message}</div>`;
-                            }
-
-                                        .in                              in:5px 0;border-bottom:1px dash                              >URL b                                eetsApiUrl}</div>`;
-                          });
-
-                                           mentById('testCustom').addEventListener('click', async () => {                                  st customUrl = d                                  dpoint').va                                    f (!customUrl) {
-                                                     +=                                  ease enter a URL to test</div>`;
-                                                                                                     resultsDiv.innerHTML                                border-bottom:1px dashed #555;padding-bottom:5px;">Testing custom                                                                                                resultsDiv.innerHTML                                   /div>`;
-                              const getResponse = await fetch(customUrl);
-                                            tus = getResponse.status;
-                              resultsDiv.innerHTML += `<div>GET Status: ${getStatus}</div>`;
-
-                              try {
-                                                     it getResponse                                           resultsDiv.innerHTML += `<div style                                   parsed as JSON</div>`;
-                                resultsDiv.innerHTML += `<div style="ma                                  kground:#2c2c2c;padding:5px;margin:5px 0;border-radius:4px;">${JSON.stringify(getData, null, 2)}</div>`;
-                              } catch (e) {
-                                const getText = await getResponse.text();
-                                                    ML                              3c;">✗ GET respons                                                              resultsDiv.innerHTML += `<div style="max-height:100px;overflow:auto;bac                              mar                              white-space:pre-wrap;font-size:10px;">${getText.substring(0, 500)}${getText.length > 500 ? '...' : ''}</div>`;
-                              }
-                                         ror)                                   resultsDiv.innerHTML += `<div style="color:#e74c3c;">✗ GET request faile                                                          }
-                          });
-                        }
-
-                              /* -------------------------
-                                 Add Diagnostics Button
-                                 ------------------------- */
-                              function addAdminSection() {
-                                // Remove the original diagnostics button if it exists
-                                const existingButton = document.querySelector('button[innerHTML="Diagnostics"]');
-                                if (existingButton) {
-                                  try {
-                                    existingButton.parentNode.removeChild(existingButton);
-                                  } catch (e) {
-                                    console.warn("Could not remove existing diagnostics button:", e);
-                                  }
-                                }
-
-                              // Create the admin button
-                              const adminButton = document.createElement('button');
-                              adminButton.innerHTML = '⚙️';
-                              adminButton.style.position = 'fixed';
-                              adminButton.style.bottom = '10px';
-                              adminButton.style.right = '10px';
-                              adminButton.style.zIndex = '1000';
-                              adminButton.style.backgroundColor = '#34495e';
-                              adminButton.style.color = 'white';
-                              adminButton.style.border = 'none';
-                              adminButton.style.borderRadius = '50%';
-                              adminButton.style.width = '40px';
-                              adminButton.style.height = '40px';
-                              adminButton.style.fontSize = '18px';
-                              adminButton.style.cursor = 'pointer';
-                              adminButton.style.boxShadow = '0 2px 5px rgba(0,0,0,0.3)';
-
-                              let adminPanelVisible = false;
-
-                              adminButton.addEventListener('click', () => {
-                                if (adminPanelVisible) {
-                                  hideAdminPanel();
-                                } else {
-                                  showAdminPanel();
-                                }
-                              });
-
-                              document.body.appendChild(adminButton);
-
-                              // Create the admin panel (initially hidden)
-                              const adminPanel = document.createElement('div');
-                              adminPanel.id = 'adminPanel';
-                              adminPanel.style.position = 'fixed';
-                              adminPanel.style.bottom = '60px';
-                              adminPanel.style.right = '10px';
-                              adminPanel.style.backgroundColor = '#34495e';
-                              adminPanel.style.color = 'white';
-                              adminPanel.style.padding = '15px';
-                              adminPanel.style.borderRadius = '8px';
-                              adminPanel.style.width = '300px';
-                              adminPanel.style.boxShadow = '0 2px 10px rgba(0,0,0,0.5)';
-                              adminPanel.style.zIndex = '999';
-                              adminPanel.style.display = 'none';
-
-                              adminPanel.innerHTML = `
+          adminPanel.innerHTML = `
         <div style="text-align:center;margin-bottom:15px;font-weight:bold;color:#e74c3c;">
           ADMIN PANEL - RESTRICTED ACCESS
         </div>
@@ -3869,489 +3678,84 @@
         </div>
       `;
 
-                              document.body.appendChild(adminPanel);
+          document.body.appendChild(adminPanel);
 
-                              // Function to show the admin panel
-                              function showAdminPanel() {
-                                adminPanel.style.display = 'block';
-                                adminPanelVisible = true;
+          // Function to show the admin panel
+          function showAdminPanel() {
+            adminPanel.style.display = 'block';
+            adminPanelVisible = true;
 
-                              // Add event listeners to buttons
-                              document.getElementById('diagnosticsBtn').addEventListener('click', runDiagnostics);
-                              document.getElementById('clearDataBtn').addEventListener('click', confirmClearData);
-                              document.getElementById('exportDataBtn').addEventListener('click', exportData);
-                              document.getElementById('closeAdminBtn').addEventListener('click', hideAdminPanel);
-                            }
+            // Add event listeners to buttons
+            document.getElementById('diagnosticsBtn').addEventListener('click', runDiagnostics);
+            document.getElementById('clearDataBtn').addEventListener('click', confirmClearData);
+            document.getElementById('exportDataBtn').addEventListener('click', exportData);
+            document.getElementById('closeAdminBtn').addEventListener('click', hideAdminPanel);
+          }
 
-                              // Function to hide the admin panel
-                              function hideAdminPanel() {
-                                adminPanel.style.display = 'none';
-                                adminPanelVisible = false;
-                              }
+          // Function to hide the admin panel
+          function hideAdminPanel() {
+            adminPanel.style.display = 'none';
+            adminPanelVisible = false;
+          }
 
-                              // Function to confirm data clearing
-                              function confirmClearData() {
-                                const confirmed = confirm("WARNING: This will delete ALL data, including archived data. This cannot be undone. Are you sure?");
-                                if (confirmed) {
-                                  localStorage.clear();
-                                  alert("All data has been cleared. The page will now reload.");
-                                  location.reload();
-                                }
-                              }
+          // Function to confirm data clearing
+          function confirmClearData() {
+            const confirmed = confirm("WARNING: This will delete ALL data, including archived data. This cannot be undone. Are you sure?");
+            if (confirmed) {
+              localStorage.clear();
+              alert("All data has been cleared. The page will now reload.");
+              location.reload();
+            }
+          }
 
-                              // Function to export data
-                              function exportData() {
-                                try {
-                                  const allData = {
-                                    currentDate: new Date().toISOString(),
-                                    todayKey: todayKey,
-                                    medicationRecords: medicationRecords,
-                                    weightRecord: weightRecord,
-                                    bmRecord: bmRecord,
-                                    drinkRecord: drinkRecord,
-                                    mealsRecord: mealsRecord,
-                                    sleepRecord: sleepRecord,
-                                    activityRecord: activityRecord,
-                                    mentalRecord: mentalRecord,
-                                    physicalSymptoms: physicalSymptoms,
-                                    notesRecord: notesRecord,
-                                    archive: JSON.parse(localStorage.getItem('healthArchive') || '{}')
-                                  };
+          // Function to export data
+          function exportData() {
+            try {
+              const allData = {
+                currentDate: new Date().toISOString(),
+                todayKey: todayKey,
+                medicationRecords: medicationRecords,
+                weightRecord: weightRecord,
+                bmRecord: bmRecord,
+                drinkRecord: drinkRecord,
+                mealsRecord: mealsRecord,
+                sleepRecord: sleepRecord,
+                activityRecord: activityRecord,
+                mentalRecord: mentalRecord,
+                physicalSymptoms: physicalSymptoms,
+                notesRecord: notesRecord,
+                archive: JSON.parse(localStorage.getItem('healthArchive') || '{}')
+              };
 
-                                const dataStr = JSON.stringify(allData, null, 2);
-                                const dataUri = 'data:application/json;charset=utf-8,' + encodeURIComponent(dataStr);
+              const dataStr = JSON.stringify(allData, null, 2);
+              const dataUri = 'data:application/json;charset=utf-8,' + encodeURIComponent(dataStr);
 
-                                const exportFileDefaultName = 'health_data_export_' + new Date().toISOString().slice(0, 10) + '.json';
+              const exportFileDefaultName = 'health_data_export_' + new Date().toISOString().slice(0, 10) + '.json';
 
-                                  const linkElement = document.createElement('a');
-                                  linkElement.setAttribute('href', dataUri);
-                                  linkElement.setAttribute('download', exportFileDefaultName);
-                                  linkElement.click();
-                                } catch (error) {
-                                  console.error("Error exporting data:", error);
-                                  alert("Error exporting data: " + error.message);
-                                }
-                              }
-                            }
+              const linkElement = document.createElement('a');
+              linkElement.setAttribute('href', dataUri);
+              linkElement.setAttribute('download', exportFileDefaultName);
+              linkElement.click();
+            } catch (error) {
+              console.error("Error exporting data:", error);
+              alert("Error exporting data: " + error.message);
+            }
+          }
+        }
 
-                              /* -------------------------
-                                 Connection Diagnostics
-                                 ------------------------- */
-                              async function runDiagnostics() {
-                                const diagnosticsDiv = document.createElement('div');
-                                diagnosticsDiv.className = 'diagnostics-container';
-
-                                diagnosticsDiv.innerHTML = `
-        <h3 class="diagnostics-header">Connection Diagnostics</h3>
-        <div id="diagnosticsResults" class="diagnostics-results"></div>
-        <div class="diagnostics-buttons">
-          <button id="closeDiagnostics" class="admin-btn admin-btn-danger">Close</button>
-          <button id="testHttpbin" class="admin-btn admin-btn-primary">Test Httpbin</button>
-          <button id="testAppScript" class="admin-btn admin-btn-success">Test Apps Script</button>
-        </div>
-        <div class="diagnostics-custom">
-          <input id="customEndpoint" type="text" placeholder="Enter custom endpoint to test">
-          <button id="testCustom" class="admin-btn">Test Custom Endpoint</button>
-        </div>
-      `;
-
-                                document.body.appendChild(diagnosticsDiv);
-
-                                const resultsDiv = document.getElementById('diagnosticsResults');
-
-                                document.getElementById('closeDiagnostics').addEventListener('click', () => {
-                                  document.body.removeChild(diagnosticsDiv);
-                                });
-
-                                document.getElementById('testHttpbin').addEventListener('click', async () => {
-                                  resultsDiv.innerHTML += `<div style="margin:5px 0;border-bottom:1px dashed #555;padding-bottom:5px;">Testing httpbin.org POST...</div>`;
-                                  try {
-                                    const response = await fetch('https://httpbin.org/post', {
-                                      method: 'POST',
-                                      headers: {
-                                        'Content-Type': 'application/json'
-                                      },
-                                      body: JSON.stringify({ test: 'connection' })
-                                    });
-
-                                    const data = await response.json();
-                                    resultsDiv.innerHTML += `<div style="color:#2ecc71;">✓ Httpbin test successful!</div>`;
-                                    resultsDiv.innerHTML += `<div style="max-height:100px;overflow:auto;background:#2c2c2c;padding:5px;margin:5px 0;border-radius:4px;">${JSON.stringify(data, null, 2)}</div>`;
-                                  } catch (error) {
-                                    resultsDiv.innerHTML += `<div style="color:#e74c3c;">✗ Httpbin test failed: ${error.message}</div>`;
-                                  }
-                                });
-
-                                document.getElementById('testAppScript').addEventListener('click', async () => {
-                                  resultsDiv.innerHTML += `<div style="margin:5px 0;border-bottom:1px dashed #555;padding-bottom:5px;">Testing Google Apps Script URL...</div>`;
-
-                                  // First test with GET request
-                                  try {
-                                    resultsDiv.innerHTML += `<div>Testing GET request...</div>`;
-                                    const getResponse = await fetch(CONFIG.googleSheetsApiUrl);
-                                    const getStatus = getResponse.status;
-                                    resultsDiv.innerHTML += `<div>GET Status: ${getStatus}</div>`;
-
-                                    try {
-                                      const getData = await getResponse.json();
-                                      resultsDiv.innerHTML += `<div style="color:#2ecc71;">✓ GET response parsed as JSON</div>`;
-                                      resultsDiv.innerHTML += `<div style="max-height:100px;overflow:auto;background:#2c2c2c;padding:5px;margin:5px 0;border-radius:4px;">${JSON.stringify(getData, null, 2)}</div>`;
-                                    } catch (e) {
-                                      const getText = await getResponse.text();
-                                      resultsDiv.innerHTML += `<div style="color:#e74c3c;">✗ GET response is not valid JSON</div>`;
-                                      resultsDiv.innerHTML += `<div style="max-height:100px;overflow:auto;background:#2c2c2c;padding:5px;margin:5px 0;border-radius:4px;white-space:pre-wrap;font-size:10px;">${getText.substring(0, 500)}${getText.length > 500 ? '...' : ''}</div>`;
-                                    }
-                                  } catch (error) {
-                                    resultsDiv.innerHTML += `<div style="color:#e74c3c;">✗ GET request failed: ${error.message}</div>`;
-                                  }
-
-                                  // Then test with POST request
-                                  try {
-                                    resultsDiv.innerHTML += `<div>Testing POST request...</div>`;
-                                    const postResponse = await fetch(CONFIG.googleSheetsApiUrl, {
-                                      method: 'POST',
-                                      headers: {
-                                        'Content-Type': 'application/json'
-                                      },
-                                      body: JSON.stringify({ test: 'connection' })
-                                    });
-
-                                    const postStatus = postResponse.status;
-                                    resultsDiv.innerHTML += `<div>POST Status: ${postStatus}</div>`;
-
-                                    try {
-                                      const postData = await postResponse.json();
-                                      resultsDiv.innerHTML += `<div style="color:#2ecc71;">✓ POST response parsed as JSON</div>`;
-                                      resultsDiv.innerHTML += `<div style="max-height:100px;overflow:auto;background:#2c2c2c;padding:5px;margin:5px 0;border-radius:4px;">${JSON.stringify(postData, null, 2)}</div>`;
-                                    } catch (e) {
-                                      const postText = await postResponse.text();
-                                      resultsDiv.innerHTML += `<div style="color:#e74c3c;">✗ POST response is not valid JSON</div>`;
-                                      resultsDiv.innerHTML += `<div style="max-height:100px;overflow:auto;background:#2c2c2c;padding:5px;margin:5px 0;border-radius:4px;white-space:pre-wrap;font-size:10px;">${postText.substring(0, 500)}${postText.length > 500 ? '...' : ''}</div>`;
-                                    }
-                                  } catch (error) {
-                                    resultsDiv.innerHTML += `<div style="color:#e74c3c;">✗ POST request failed: ${error.message}</div>`;
-                                  }
-
-                                  resultsDiv.innerHTML += `<div style="margin:5px 0;border-bottom:1px dashed #555;padding-bottom:5px;">URL being tested: ${CONFIG.googleSheetsApiUrl}</div>`;
-                                });
-
-                                document.getElementById('testCustom').addEventListener('click', async () => {
-                                  const customUrl = document.getElementById('customEndpoint').value;
-                                  if (!customUrl) {
-                                    resultsDiv.innerHTML += `<div style="color:#e74c3c;">Please enter a URL to test</div>`;
-                                    return;
-                                  }
-
-                                  resultsDiv.innerHTML += `<div style="margin:5px 0;border-bottom:1px dashed #555;padding-bottom:5px;">Testing custom URL: ${customUrl}</div>`;
-
-                                  try {
-                                    resultsDiv.innerHTML += `<div>Testing GET request...</div>`;
-                                    const getResponse = await fetch(customUrl);
-                                    const getStatus = getResponse.status;
-                                    resultsDiv.innerHTML += `<div>GET Status: ${getStatus}</div>`;
-
-                                    try {
-                                      const getData = await getResponse.json();
-                                      resultsDiv.innerHTML += `<div style="color:#2ecc71;">✓ GET response parsed as JSON</div>`;
-                                      resultsDiv.innerHTML += `<div style="max-height:100px;overflow:auto;background:#2c2c2c;padding:5px;margin:5px 0;border-radius:4px;">${JSON.stringify(getData, null, 2)}</div>`;
-                                    } catch (e) {
-                                      const getText = await getResponse.text();
-                                      resultsDiv.innerHTML += `<div style="color:#e74c3c;">✗ GET response is not valid JSON</div>`;
-                                      resultsDiv.innerHTML += `<div style="max-height:100px;overflow:auto;background:#2c2c2c;padding:5px;margin:5px 0;border-radius:4px;white-space:pre-wrap;font-size:10px;">${getText.substring(0, 500)}${getText.length > 500 ? '...' : ''}</div>`;
-                                    }
-                                  } catch (error) {
-                                    resultsDiv.innerHTML += `<div style="color:#e74c3c;">✗ GET request failed: ${error.message}</div>`;
-                                  }
-                                });
-                              }
-
-                                    /* -------------------------
-                                       Add Diagnostics Button
-                                       ------------------------- */
-                                    function addAdminSection() {
-                                      // Remove the original diagnostics button if it exists
-                                      const existingButton = document.querySelector('button[innerHTML="Diagnostics"]');
-                                      if (existingButton) {
-                                        try {
-                                          existingButton.parentNode.removeChild(existingButton);
-                                        } catch (e) {
-                                          console.warn("Could not remove existing diagnostics button:", e);
-                                        }
-                                      }
-
-                                    // Create the admin button
-                                    const adminButton = document.createElement('button');
-                                    adminButton.innerHTML = '⚙️';
-                                    adminButton.style.position = 'fixed';
-                                    adminButton.style.bottom = '10px';
-                                    adminButton.style.right = '10px';
-                                    adminButton.style.zIndex = '1000';
-                                    adminButton.style.backgroundColor = '#34495e';
-                                    adminButton.style.color = 'white';
-                                    adminButton.style.border = 'none';
-                                    adminButton.style.borderRadius = '50%';
-                                    adminButton.style.width = '40px';
-                                    adminButton.style.height = '40px';
-                                    adminButton.style.fontSize = '18px';
-                                    adminButton.style.cursor = 'pointer';
-                                    adminButton.style.boxShadow = '0 2px 5px rgba(0,0,0,0.3)';
-
-                                    let adminPanelVisible = false;
-
-                                    adminButton.addEventListener('click', () => {
-                                      if (adminPanelVisible) {
-                                        hideAdminPanel();
-                                      } else {
-                                        showAdminPanel();
-                                      }
-                                    });
-
-                                    document.body.appendChild(adminButton);
-
-                                    // Create the admin panel (initially hidden)
-                                    const adminPanel = document.createElement('div');
-                                    adminPanel.id = 'adminPanel';
-                                    adminPanel.style.position = 'fixed';
-                                    adminPanel.style.bottom = '60px';
-                                    adminPanel.style.right = '10px';
-                                    adminPanel.style.backgroundColor = '#34495e';
-                                    adminPanel.style.color = 'white';
-                                    adminPanel.style.padding = '15px';
-                                    adminPanel.style.borderRadius = '8px';
-                                    adminPanel.style.width = '300px';
-                                    adminPanel.style.boxShadow = '0 2px 10px rgba(0,0,0,0.5)';
-                                    adminPanel.style.zIndex = '999';
-                                    adminPanel.style.display = 'none';
-
-                                    adminPanel.innerHTML = `
-        <div style="text-align:center;margin-bottom:15px;font-weight:bold;color:#e74c3c;">
-          ADMIN PANEL - RESTRICTED ACCESS
-        </div>
-        <div style="display:flex;flex-direction:column;gap:10px;">
-          <button id="diagnosticsBtn" style="background:#3498db;border:none;color:white;padding:8px;border-radius:4px;cursor:pointer;">
-            Run Diagnostics
-          </button>
-          <button id="clearDataBtn" style="background:#e74c3c;border:none;color:white;padding:8px;border-radius:4px;cursor:pointer;">
-            Clear All Data
-          </button>
-          <button id="exportDataBtn" style="background:#27ae60;border:none;color:white;padding:8px;border-radius:4px;cursor:pointer;">
-            Export Data
-          </button>
-          <button id="closeAdminBtn" style="background:#7f8c8d;border:none;color:white;padding:8px;border-radius:4px;cursor:pointer;margin-top:10px;">
-            Close
-          </button>
-        </div>
-      `;
-
-                                    document.body.appendChild(adminPanel);
-
-                                    // Function to show the admin panel
-                                    function showAdminPanel() {
-                                      adminPanel.style.display = 'block';
-                                      adminPanelVisible = true;
-
-                                    // Add event listeners to buttons
-                                    document.getElementById('diagnosticsBtn').addEventListener('click', runDiagnostics);
-                                    document.getElementById('clearDataBtn').addEventListener('click', confirmClearData);
-                                    document.getElementById('exportDataBtn').addEventListener('click', exportData);
-                                    document.getElementById('closeAdminBtn').addEventListener('click', hideAdminPanel);
-                                  }
-
-                                    // Function to hide the admin panel
-                                    function hideAdminPanel() {
-                                      adminPanel.style.display = 'none';
-                                      adminPanelVisible = false;
-                                    }
-
-                                    // Function to confirm data clearing
-                                    function confirmClearData() {
-                                      const confirmed = confirm("WARNING: This will delete ALL data, including archived data. This cannot be undone. Are you sure?");
-                                      if (confirmed) {
-                                        localStorage.clear();
-                                        alert("All data has been cleared. The page will now reload.");
-                                        location.reload();
-                                      }
-                                    }
-
-                                    // Function to export data
-                                    function exportData() {
-                                      try {
-                                        const allData = {
-                                          currentDate: new Date().toISOString(),
-                                          todayKey: todayKey,
-                                          medicationRecords: medicationRecords,
-                                          weightRecord: weightRecord,
-                                          bmRecord: bmRecord,
-                                          drinkRecord: drinkRecord,
-                                          mealsRecord: mealsRecord,
-                                          sleepRecord: sleepRecord,
-                                          activityRecord: activityRecord,
-                                          mentalRecord: mentalRecord,
-                                          physicalSymptoms: physicalSymptoms,
-                                          notesRecord: notesRecord,
-                                          archive: JSON.parse(localStorage.getItem('healthArchive') || '{}')
-                                        };
-
-                                      const dataStr = JSON.stringify(allData, null, 2);
-                                      const dataUri = 'data:application/json;charset=utf-8,' + encodeURIComponent(dataStr);
-
-                                      const exportFileDefaultName = 'health_data_export_' + new Date().toISOString().slice(0, 10) + '.json';
-
-                                        const linkElement = document.createElement('a');
-                                        linkElement.setAttribute('href', dataUri);
-                                        linkElement.setAttribute('download', exportFileDefaultName);
-                                        linkElement.click();
-                                      } catch (error) {
-                                        console.error("Error exporting data:", error);
-                                        alert("Error exporting data: " + error.message);
-                                      }
-                                    }
-                                  }
-
-                                    /* -------------------------
-                                       Connection Diagnostics
-                                       ------------------------- */
-                                    async function runDiagnostics() {
-                                      const diagnosticsDiv = document.createElement('div');
-                                      diagnosticsDiv.className = 'diagnostics-container';
-
-                                    diagnosticsDiv.innerHTML = `
-        <h3 class="diagnostics-header">Connection Diagnostics</h3>
-        <div id="diagnosticsResults" class="diagnostics-results"></div>
-        <div class="diagnostics-buttons">
-          <button id="closeDiagnostics" class="admin-btn admin-btn-danger">Close</button>
-          <button id="testHttpbin" class="admin-btn admin-btn-primary">Test Httpbin</button>
-          <button id="testAppScript" class="admin-btn admin-btn-success">Test Apps Script</button>
-        </div>
-        <div class="diagnostics-custom">
-          <input id="customEndpoint" type="text" placeholder="Enter custom endpoint to test">
-          <button id="testCustom" class="admin-btn">Test Custom Endpoint</button>
-        </div>
-      `;
-
-                                    document.body.appendChild(diagnosticsDiv);
-
-                                    const resultsDiv = document.getElementById('diagnosticsResults');
-
-                                    document.getElementById('closeDiagnostics').addEventListener('click', () => {
-                                      document.body.removeChild(diagnosticsDiv);
-                                    });
-
-                                    document.getElementById('testHttpbin').addEventListener('click', async () => {
-                                      resultsDiv.innerHTML += `<div style="margin:5px 0;border-bottom:1px dashed #555;padding-bottom:5px;">Testing httpbin.org POST...</div>`;
-                                      try {
-                                        const response = await fetch('https://httpbin.org/post', {
-                                          method: 'POST',
-                                          headers: {
-                                            'Content-Type': 'application/json'
-                                          },
-                                          body: JSON.stringify({ test: 'connection' })
-                                        });
-
-                                      const data = await response.json();
-                                      resultsDiv.innerHTML += `<div style="color:#2ecc71;">✓ Httpbin test successful!</div>`;
-                                      resultsDiv.innerHTML += `<div style="max-height:100px;overflow:auto;background:#2c2c2c;padding:5px;margin:5px 0;border-radius:4px;">${JSON.stringify(data, null, 2)}</div>`;
-                                    } catch (error) {
-                                      resultsDiv.innerHTML += `<div style="color:#e74c3c;">✗ Httpbin test failed: ${error.message}</div>`;
-                                    }
-                                  });
-
-                                    document.getElementById('testAppScript').addEventListener('click', async () => {
-                                      resultsDiv.innerHTML += `<div style="margin:5px 0;border-bottom:1px dashed #555;padding-bottom:5px;">Testing Google Apps Script URL...</div>`;
-
-                                    // First test with GET request
-                                    try {
-                                      resultsDiv.innerHTML += `<div>Testing GET request...</div>`;
-                                      const getResponse = await fetch(CONFIG.googleSheetsApiUrl);
-                                      const getStatus = getResponse.status;
-                                      resultsDiv.innerHTML += `<div>GET Status: ${getStatus}</div>`;
-
-                                    try {
-                                      const getData = await getResponse.json();
-                                      resultsDiv.innerHTML += `<div style="color:#2ecc71;">✓ GET response parsed as JSON</div>`;
-                                      resultsDiv.innerHTML += `<div style="max-height:100px;overflow:auto;background:#2c2c2c;padding:5px;margin:5px 0;border-radius:4px;">${JSON.stringify(getData, null, 2)}</div>`;
-                                    } catch (e) {
-                                      const getText = await getResponse.text();
-                                      resultsDiv.innerHTML += `<div style="color:#e74c3c;">✗ GET response is not valid JSON</div>`;
-                                      resultsDiv.innerHTML += `<div style="max-height:100px;overflow:auto;background:#2c2c2c;padding:5px;margin:5px 0;border-radius:4px;white-space:pre-wrap;font-size:10px;">${getText.substring(0, 500)}${getText.length > 500 ? '...' : ''}</div>`;
-                                    }
-                                  } catch (error) {
-                                    resultsDiv.innerHTML += `<div style="color:#e74c3c;">✗ GET request failed: ${error.message}</div>`;
-                                  }
-
-                                    // Then test with POST request
-                                    try {
-                                      resultsDiv.innerHTML += `<div>Testing POST request...</div>`;
-                                      const postResponse = await fetch(CONFIG.googleSheetsApiUrl, {
-                                        method: 'POST',
-                                        headers: {
-                                          'Content-Type': 'application/json'
-                                        },
-                                        body: JSON.stringify({ test: 'connection' })
-                                      });
-
-                                    const postStatus = postResponse.status;
-                                    resultsDiv.innerHTML += `<div>POST Status: ${postStatus}</div>`;
-
-                                    try {
-                                      const postData = await postResponse.json();
-                                      resultsDiv.innerHTML += `<div style="color:#2ecc71;">✓ POST response parsed as JSON</div>`;
-                                      resultsDiv.innerHTML += `<div style="max-height:100px;overflow:auto;background:#2c2c2c;padding:5px;margin:5px 0;border-radius:4px;">${JSON.stringify(postData, null, 2)}</div>`;
-                                    } catch (e) {
-                                      const postText = await postResponse.text();
-                                      resultsDiv.innerHTML += `<div style="color:#e74c3c;">✗ POST response is not valid JSON</div>`;
-                                      resultsDiv.innerHTML += `<div style="max-height:100px;overflow:auto;background:#2c2c2c;padding:5px;margin:5px 0;border-radius:4px;white-space:pre-wrap;font-size:10px;">${postText.substring(0, 500)}${postText.length > 500 ? '...' : ''}</div>`;
-                                    }
-                                  } catch (error) {
-                                    resultsDiv.innerHTML += `<div style="color:#e74c3c;">✗ POST request failed: ${error.message}</div>`;
-                                  }
-
-                                    resultsDiv.innerHTML += `<div style="margin:5px 0;border-bottom:1px dashed #555;padding-bottom:5px;">URL being tested: ${CONFIG.googleSheetsApiUrl}</div>`;
-                                  });
-
-                                    document.getElementById('testCustom').addEventListener('click', async () => {
-                                      const customUrl = document.getElementById('customEndpoint').value;
-                                      if (!customUrl) {
-                                        resultsDiv.innerHTML += `<div style="color:#e74c3c;">Please enter a URL to test</div>`;
-                                        return;
-                                      }
-
-                                    resultsDiv.innerHTML += `<div style="margin:5px 0;border-bottom:1px dashed #555;padding-bottom:5px;">Testing custom URL: ${customUrl}</div>`;
-
-                                    try {
-                                      resultsDiv.innerHTML += `<div>Testing GET request...</div>`;
-                                      const getResponse = await fetch(customUrl);
-                                      const getStatus = getResponse.status;
-                                      resultsDiv.innerHTML += `<div>GET Status: ${getStatus}</div>`;
-
-                                      try {
-                                        const getData = await getResponse.json();
-                                        resultsDiv.innerHTML += `<div style="color:#2ecc71;">✓ GET response parsed as JSON</div>`;
-                                        resultsDiv.innerHTML += `<div style="max-height:100px;overflow:auto;background:#2c2c2c;padding:5px;margin:5px 0;border-radius:4px;">${JSON.stringify(getData, null, 2)}</div>`;
-                                      } catch (e) {
-                                        const getText = await getResponse.text();
-                                        resultsDiv.innerHTML += `<div style="color:#e74c3c;">✗ GET response is not valid JSON</div>`;
-                                        resultsDiv.innerHTML += `<div style="max-height:100px;overflow:auto;background:#2c2c2c;padding:5px;margin:5px 0;border-radius:4px;white-space:pre-wrap;font-size:10px;">${getText.substring(0, 500)}${getText.length > 500 ? '...' : ''}</div>`;
-                                      }
-                                    } catch (error) {
-                                      resultsDiv.innerHTML += `<div style="color:#e74c3c;">✗ GET request failed: ${error.message}</div>`;
-                                    }
-                                  });
-                                  }
-
-                /* -------------------------
-                   Add Diagnostics Button
-                   ------------------------- */
-                function addAdminSection() {
-                  // Remove the original diagnostics button if it exists
-                  const existingButton = document.querySelector('button[innerHTML="Diagnostics"]');
-                  if (existingButton) {
-                    try {
-                      existingButton.parentNode.removeChild(existingButton);
-                    } catch (e) {
-                      console.warn("Could not remove existing diagnostics button:", e);
-                    }
+              /* -------------------------
+                 Add Diagnostics Button
+                 ------------------------- */
+              function addAdminSection() {
+                // Remove the original diagnostics button if it exists
+                const existingButton = document.querySelector('button[innerHTML="Diagnostics"]');
+                if (existingButton) {
+                  try {
+                    existingButton.parentNode.removeChild(existingButton);
+                  } catch (e) {
+                    console.warn("Could not remove existing diagnostics button:", e);
                   }
+                }
 
                 // Create the admin button
                 const adminButton = document.createElement('button');
@@ -4424,12 +3828,12 @@
                   adminPanel.style.display = 'block';
                   adminPanelVisible = true;
 
-                // Add event listeners to buttons
-                document.getElementById('diagnosticsBtn').addEventListener('click', runDiagnostics);
-                document.getElementById('clearDataBtn').addEventListener('click', confirmClearData);
-                document.getElementById('exportDataBtn').addEventListener('click', exportData);
-                document.getElementById('closeAdminBtn').addEventListener('click', hideAdminPanel);
-              }
+                  // Add event listeners to buttons
+                  document.getElementById('diagnosticsBtn').addEventListener('click', runDiagnostics);
+                  document.getElementById('clearDataBtn').addEventListener('click', confirmClearData);
+                  document.getElementById('exportDataBtn').addEventListener('click', exportData);
+                  document.getElementById('closeAdminBtn').addEventListener('click', hideAdminPanel);
+                }
 
                 // Function to hide the admin panel
                 function hideAdminPanel() {
@@ -4466,78 +3870,296 @@
                       archive: JSON.parse(localStorage.getItem('healthArchive') || '{}')
                     };
 
-                  const dataStr = JSON.stringify(allData, null, 2);
-                  const dataUri = 'data:application/json;charset=utf-8,' + encodeURIComponent(dataStr);
+                    const dataStr = JSON.stringify(allData, null, 2);
+                    const dataUri = 'data:application/json;charset=utf-8,' + encodeURIComponent(dataStr);
 
-                  const exportFileDefaultName = 'health_data_export_' + new Date().toISOString().slice(0, 10) + '.json';
+                    const exportFileDefaultName = 'health_data_export_' + new Date().toISOString().slice(0, 10) + '.json';
 
-                  const linkElement = document.createElement('a');
-                  linkElement.setAttribute('href', dataUri);
-                  linkElement.setAttribute('download', exportFileDefaultName);
-                  linkElement.click();
+                    const linkElement = document.createElement('a');
+                    linkElement.setAttribute('href', dataUri);
+                    linkElement.setAttribute('download', exportFileDefaultName);
+                    linkElement.click();
+                  } catch (error) {
+                    console.error("Error exporting data:", error);
+                    alert("Error exporting data: " + error.message);
+                  }
+                }
+              }
+
+              /* -------------------------
+                 Connection Diagnostics
+                 ------------------------- */
+              async function runDiagnostics() {
+                const diagnosticsDiv = document.createElement('div');
+                diagnosticsDiv.className = 'diagnostics-container';
+
+                diagnosticsDiv.innerHTML = `
+        <h3 class="diagnostics-header">Connection Diagnostics</h3>
+        <div id="diagnosticsResults" class="diagnostics-results"></div>
+        <div class="diagnostics-buttons">
+          <button id="closeDiagnostics" class="admin-btn admin-btn-danger">Close</button>
+          <button id="testHttpbin" class="admin-btn admin-btn-primary">Test Httpbin</button>
+          <button id="testAppScript" class="admin-btn admin-btn-success">Test Apps Script</button>
+        </div>
+        <div class="diagnostics-custom">
+          <input id="customEndpoint" type="text" placeholder="Enter custom endpoint to test">
+          <button id="testCustom" class="admin-btn">Test Custom Endpoint</button>
+        </div>
+      `;
+
+                document.body.appendChild(diagnosticsDiv);
+
+                const resultsDiv = document.getElementById('diagnosticsResults');
+
+              document.getElementById('closeDiagnostics').addEventListener('click', () => {
+                document.body.removeChild(diagnosticsDiv);
+              });
+
+              document.getElementById('testHttpbin').addEventListener('click', async () => {
+                resultsDiv.innerHTML += `<div style="margin:5px 0;border-bottom:1px dashed #555;padding-bottom:5px;">Testing httpbin.org POST...</div>`;
+                try {
+                  const response = await fetch('https://httpbin.org/post', {
+                    method: 'POST',
+                    headers: {
+                      'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ test: 'connection' })
+                  });
+
+                  const data = await response.json();
+                  resultsDiv.innerHTML += `<div style="color:#2ecc71;">✓ Httpbin test successful!</div>`;
+                  resultsDiv.innerHTML += `<div style="max-height:100px;overflow:auto;background:#2c2c2c;padding:5px;margin:5px 0;border-radius:4px;">${JSON.stringify(data, null, 2)}</div>`;
                 } catch (error) {
-                  console.error("Error exporting data:", error);
-                  alert("Error exporting data: " + error.message);
-                              }
-                            }
-                          }
+                  resultsDiv.innerHTML += `<div style="color:#e74c3c;">✗ Httpbin test failed: ${error.message}</div>`;
+                }
+              });
 
-                          /* -------------------------
-                             Add Diagnostics Button
-                             ------------------------- */
-                          function addAdminSection() {
-                            // Remove the original diagnostics button if it exists
-                            const existingButton = document.querySelector('button[innerHTML="Diagnostics"]');
-                            if (existingButton) {
-                              try {
-                                existingButton.parentNode.removeChild(existingButton);
-                              } catch (e) {
-                                console.warn("Could not remove existing diagnostics button:", e);
+              document.getElementById('testAppScript').addEventListener('click', async () => {
+                resultsDiv.innerHTML += `<div style="margin:5px 0;border-bottom:1px dashed #555;padding-bottom:5px;">Testing Google Apps Script URL...</div>`;
+
+                // First test with GET request
+                try {
+                  resultsDiv.innerHTML += `<div>Testing GET request...</div>`;
+                  const getResponse = await fetch(CONFIG.googleSheetsApiUrl);
+                  const getStatus = getResponse.status;
+                  resultsDiv.innerHTML += `<div>GET Status: ${getStatus}</div>`;
+
+                  try {
+                    const getData = await getResponse.json();
+                    resultsDiv.innerHTML += `<div style="color:#2ecc71;">✓ GET response parsed as JSON</div>`;
+                    resultsDiv.innerHTML += `<div style="max-height:100px;overflow:auto;background:#2c2c2c;padding:5px;margin:5px 0;border-radius:4px;">${JSON.stringify(getData, null, 2)}</div>`;
+                  } catch (e) {
+                    const getText = await getResponse.text();
+                    resultsDiv.innerHTML += `<div style="color:#e74c3c;">✗ GET response is not valid JSON</div>`;
+                    resultsDiv.innerHTML += `<div style="max-height:100px;overflow:auto;background:#2c2c2c;padding:5px;margin:5px 0;border-radius:4px;white-space:pre-wrap;font-size:10px;">${getText.substring(0, 500)}${getText.length > 500 ? '...' : ''}</div>`;
+                  }
+                } catch (error) {
+                  resultsDiv.innerHTML += `<div style="color:#e74c3c;">✗ GET request failed: ${error.message}</div>`;
+              }
+
+              // Then test with POST request
+              try {
+                resultsDiv.innerHTML += `<div>Testing POST request...</div>`;
+                const postResponse = await fetch(CONFIG.googleSheetsApiUrl, {
+                  method: 'POST',
+                  headers: {
+                    'Content-Type': 'application/json'
+                  },
+                  body: JSON.stringify({ test: 'connection' })
+                });
+
+                const postStatus = postResponse.status;
+                resultsDiv.innerHTML += `<div>POST Status: ${postStatus}</div>`;
+
+                try {
+                  const postData = await postResponse.json();
+                  resultsDiv.innerHTML += `<div style="color:#2ecc71;">✓ POST response parsed as JSON</div>`;
+                  resultsDiv.innerHTML += `<div style="max-height:100px;overflow:auto;background:#2c2c2c;padding:5px;margin:5px 0;border-radius:4px;">${JSON.stringify(postData, null, 2)}</div>`;
+                } catch (e) {
+                  const postText = await postResponse.text();
+                  resultsDiv.innerHTML += `<div style="color:#e74c3c;">✗ POST response is not valid JSON</div>`;
+                  resultsDiv.innerHTML += `<div style="max-height:100px;overflow:auto;background:#2c2c2c;padding:5px;margin:5px 0;border-radius:4px;white-space:pre-wrap;font-size:10px;">${postText.substring(0, 500)}${postText.length > 500 ? '...' : ''}</div>`;
+                }
+              } catch (error) {
+                resultsDiv.innerHTML += `<div style="color:#e74c3c;">✗ POST request failed: ${error.message}</div>`;
+              }
+
+              resultsDiv.innerHTML += `<div style="margin:5px 0;border-bottom:1px dashed #555;padding-bottom:5px;">URL being tested: ${CONFIG.googleSheetsApiUrl}</div>`;
+            });
+
+              document.getElementById('testCustom').addEventListener('click', async () => {
+                const customUrl = document.getElementById('customEndpoint').value;
+                if (!customUrl) {
+                  resultsDiv.innerHTML += `<div style="color:#e74c3c;">Please enter a URL to test</div>`;
+                  return;
+                }
+
+                    resultsDiv.innerHTML += `<div style="margin:5px 0;border-bottom:1px dashed #555;padding-bottom:5px;">Testing custom URL: ${customUrl}</div>`;
+
+                    try {
+                      resultsDiv.innerHTML += `<div>Testing GET request...</div>`;
+                      const getResponse = await fetch(customUrl);
+                      const getStatus = getResponse.status;
+                      resultsDiv.innerHTML += `<div>GET Status: ${getStatus}</div>`;
+
+                      try {
+                        const getData = await getResponse.json();
+                        resultsDiv.innerHTML += `<div style="color:#2ecc71;">✓ GET response parsed as JSON</div>`;
+                        resultsDiv.innerHTML += `<div style="max-height:100px;overflow:auto;background:#2c2c2c;padding:5px;margin:5px 0;border-radius:4px;">${JSON.stringify(getData, null, 2)}</div>`;
+                      } catch (e) {
+                        const getText = await getResponse.text();
+                        resultsDiv.innerHTML += `<div style="color:#e74c3c;">✗ GET response is not valid JSON</div>`;
+                        resultsDiv.innerHTML += `<div style="max-height:100px;overflow:auto;background:#2c2c2c;padding:5px;margin:5px 0;border-radius:4px;white-space:pre-wrap;font-size:10px;">${getText.substring(0, 500)}${getText.length > 500 ? '...' : ''}</div>`;
+                      }
+                    } catch (error) {
+                      resultsDiv.innerHTML += `<div style="color:#e74c3c;">✗ GET request failed: ${error.message}</div>`;
+                    }
+                  });
+                  }
+
+                  /* -------------------------
+                     Add Diagnostics Button
+                     ------------------------- */
+                  function addAdminSection() {
+                    // Remove the original diagnostics button if it exists
+                    const existingButton = document.querySelector('button[innerHTML="Diagnostics"]');
+                    if (existingButton) {
+                      try {
+                        existingButton.parentNode.removeChild(existingButton);
+                      } catch (e) {
+                        console.warn("Could not remove existing diagnostics button:", e);
+                      }
+                    }
+
+                    // Create the admin button
+                    const adminButton = document.createElement('button');
+                    adminButton.innerHTML = '⚙️';
+                    adminButton.style.position = 'fixed';
+                    adminButton.style.bottom = '10px';
+                    adminButton.style.right = '10px';
+                    adminButton.style.zIndex = '1000';
+                    adminButton.style.backgroundColor = '#34495e';
+                    adminButton.style.color = 'white';
+                    adminButton.style.border = 'none';
+                    adminButton.style.borderRadius = '50%';
+                    adminButton.style.width = '40px';
+                    adminButton.style.height = '40px';
+                    adminButton.style.fontSize = '18px';
+                    adminButton.style.cursor = 'pointer';
+                    adminButton.style.boxShadow = '0 2px 5px rgba(0,0,0,0.3)';
+
+                    let adminPanelVisible = false;
+
+                  adminButton.addEventListener('click', () => {
+                    if (adminPanelVisible) {
+                      hideAdminPanel();
+                    } else {
+                      showAdminPanel();
+                    }
+                  });
+
+                  document.body.appendChild(adminButton);
+
+                  // Create the admin panel (initially hidden)
+                  const adminPanel = document.createElement('div');
+                  adminPanel.id = 'adminPanel';
+                  adminPanel.style.position = 'fixed';
+                  adminPanel.style.bottom = '60px';
+                  adminPanel.style.right = '10px';
+                  adminPanel.style.backgroundColor = '#34495e';
+                  adminPanel.style.color = 'white';
+                  adminPanel.style.padding = '15px';
+                  adminPanel.style.borderRadius = '8px';
+                  adminPanel.style.width = '300px';
+                  adminPanel.style.boxShadow = '0 2px 10px rgba(0,0,0,0.5)';
+                  adminPanel.style.zIndex = '999';
+                  adminPanel.style.display = 'none';
+
+                  adminPanel.innerHTML = `
+        <div style="text-align:center;margin-bottom:15px;font-weight:bold;color:#e74c3c;">
+          ADMIN PANEL - RESTRICTED ACCESS
+        </div>
+        <div style="display:flex;flex-direction:column;gap:10px;">
+          <button id="diagnosticsBtn" style="background:#3498db;border:none;color:white;padding:8px;border-radius:4px;cursor:pointer;">
+            Run Diagnostics
+          </button>
+          <button id="clearDataBtn" style="background:#e74c3c;border:none;color:white;padding:8px;border-radius:4px;cursor:pointer;">
+            Clear All Data
+          </button>
+          <button id="exportDataBtn" style="background:#27ae60;border:none;color:white;padding:8px;border-radius:4px;cursor:pointer;">
+            Export Data
+          </button>
+          <button id="closeAdminBtn" style="background:#7f8c8d;border:none;color:white;padding:8px;border-radius:4px;cursor:pointer;margin-top:10px;">
+            Close
+          </button>
+        </div>
+      `;
+
+                  document.body.appendChild(adminPanel);
+
+                  // Function to show the admin panel
+                  function showAdminPanel() {
+                    adminPanel.style.display = 'block';
+                    adminPanelVisible = true;
+
+                    // Add event listeners to buttons
+                    document.getElementById('diagnosticsBtn').addEventListener('click', runDiagnostics);
+                    document.getElementById('clearDataBtn').addEventListener('click', confirmClearData);
+                    document.getElementById('exportDataBtn').addEventListener('click', exportData);
+                    document.getElementById('closeAdminBtn').addEventListener('click', hideAdminPanel);
+                  }
+
+                  // Function to hide the admin panel
+                  function hideAdminPanel() {
+                    adminPanel.style.display = 'none';
+                    adminPanelVisible = false;
+                  }
+
+                  // Function to confirm data clearing
+                  function confirmClearData() {
+                    const confirmed = confirm("WARNING: This will delete ALL data, including archived data. This cannot be undone. Are you sure?");
+                    if (confirmed) {
+                      localStorage.clear();
+                      alert("All data has been cleared. The page will now reload.");
+                      location.reload();
                     }
                   }
 
-                      // Create the admin button
-                      const adminButton = document.createElement('button');
-                      adminButton.innerHTML = '⚙️';
-                      adminButton.style.position = 'fixed';
-                      adminButton.style.bottom = '10px';
-                      adminButton.style.right = '10px';
-                      adminButton.style.zIndex = '1000';
-                      adminButton.style.backgroundColor = '#34495e';
-                      adminButton.style.color = 'white';
-                      adminButton.style.border = 'none';
-                      adminButton.style.borderRadius = '50%';
-                      adminButton.style.width = '40px';
-                      adminButton.style.height = '40px';
-                      adminButton.style.fontSize = '18px';
-                      adminButton.style.cursor = 'pointer';
-                      adminButton.style.boxShadow = '0 2px 5px rgba(0,0,0,0.3)';
+                  // Function to export data
+                  function exportData() {
+                    try {
+                      const allData = {
+                        currentDate: new Date().toISOString(),
+                        todayKey: todayKey,
+                        medicationRecords: medicationRecords,
+                        weightRecord: weightRecord,
+                        bmRecord: bmRecord,
+                        drinkRecord: drinkRecord,
+                        mealsRecord: mealsRecord,
+                        sleepRecord: sleepRecord,
+                        activityRecord: activityRecord,
+                        mentalRecord: mentalRecord,
+                        physicalSymptoms: physicalSymptoms,
+                        notesRecord: notesRecord,
+                        archive: JSON.parse(localStorage.getItem('healthArchive') || '{}')
+                      };
 
-                      let adminPanelVisible = false;
+                      const dataStr = JSON.stringify(allData, null, 2);
+                      const dataUri = 'data:application/json;charset=utf-8,' + encodeURIComponent(dataStr);
 
-                      adminButton.addEventListener('click', () => {
-                        if (adminPanelVisible) {
-                          hideAdminPanel();
-                        } else {
-                          showAdminPanel();
+                      const exportFileDefaultName = 'health_data_export_' + new Date().toISOString().slice(0, 10) + '.json';
+
+                      const linkElement = document.createElement('a');
+                      linkElement.setAttribute('href', dataUri);
+                      linkElement.setAttribute('download', exportFileDefaultName);
+                      linkElement.click();
+                    } catch (error) {
+                      console.error("Error exporting data:", error);
+                      alert("Error exporting data: " + error.message);
+                    }
                   }
-                });
+                }
 
-                      document.body.appendChild(adminButton);
-
-                      // Create the admin panel (initially hidden)
-                      const adminPanel = document.createElement('div');
-                      adminPanel.id = 'adminPanel';
-                      adminPanel.style.position = 'fixed';
-                      adminPanel.style.bottom = '60px';
-                      adminPanel.style.right = '10px';
-                      adminPanel.style.backgroundColor = '#34495e';
-                      adminPanel.style.color = 'white';
-                      adminPanel.style.padding = '15px';
-                      adminPanel.style.borderRadius = '8px';
-                      adminPanel.style.width = '300px';
-                      adminPanel.style.boxShadow = '0 2px 10px rgba(0,0,0,0.5)';
-                      adminPanel.style.zIndex = '999';
                 // Replace the existing addDiagnosticsButton function with the new admin section
                 function addDiagnosticsButton() {
                   addAdminSection();
