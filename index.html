@@ -144,10 +144,11 @@
   <!-- MAIN DASHBOARD -->
   <div id="dashboard">
     <!-- Connection Status will be inserted here by JS -->
-    <div id="connectionStatusBar" style="width:100%;padding:5px;margin-bottom:15px;text-align:center;background:#e67e22;border-radius:4px;display:flex;justify-content:space-between;align-items:center;">
-      <span>📱 Using Local Storage Mode</span>
+    <div id="connectionStatusBar"
+      style="width:100%;padding:5px;margin-bottom:15px;text-align:center;background:#3498db;border-radius:4px;display:flex;justify-content:space-between;align-items:center;">
+      <span>⏳ Connecting to Google Sheets...</span>
       <button id="toggleSyncMode" style="background:#555;border:none;color:white;padding:3px 8px;border-radius:4px;cursor:pointer;font-size:12px;">
-        Enable Google Sheets
+        Use Local Storage
       </button>
     </div>
     
@@ -1168,7 +1169,7 @@
     const CONFIG = {
       googleSheetsApiUrl: "https://script.google.com/macros/s/AKfycby3aigOPxwySAt46XdYUyienta8oM6ZQVsM2qEi79nd9M2kOvr5mmi9F6R8d0SDSVUX/exec",
       enableGoogleSheets: true,
-      localModeOnly: true, // Default to local mode for immediate functionality
+      localModeOnly: false, // Changed to false - now Google Sheets is the default
       debugMode: true
     };
 
@@ -1205,7 +1206,7 @@
           } else {
             // Connection successful
             statusBar.style.background = '#27ae60';
-            statusBar.querySelector('span').innerHTML = '✓ Google Sheets Connected';
+            statusBar.querySelector('span').innerHTML = '☁️ Using Google Sheets Sync';
             console.log("Google Sheets connection successful");
           }
         });
@@ -1788,34 +1789,176 @@
     /* -------------------------
        Add Diagnostics Button
        ------------------------- */
+        function addAdminSection() {
+          // Remove the original diagnostics button if it exists
+          const existingButton = document.querySelector('button[innerHTML="Diagnostics"]');
+          if (existingButton) {
+            try {
+              existingButton.parentNode.removeChild(existingButton);
+            } catch (e) {
+              console.warn("Could not remove existing diagnostics button:", e);
+            }
+          }
+
+          // Create the admin button
+          const adminButton = document.createElement('button');
+          adminButton.innerHTML = '⚙️';
+          adminButton.style.position = 'fixed';
+          adminButton.style.bottom = '10px';
+          adminButton.style.right = '10px';
+          adminButton.style.zIndex = '1000';
+          adminButton.style.backgroundColor = '#34495e';
+          adminButton.style.color = 'white';
+          adminButton.style.border = 'none';
+          adminButton.style.borderRadius = '50%';
+          adminButton.style.width = '40px';
+          adminButton.style.height = '40px';
+          adminButton.style.fontSize = '18px';
+          adminButton.style.cursor = 'pointer';
+          adminButton.style.boxShadow = '0 2px 5px rgba(0,0,0,0.3)';
+
+          let adminPanelVisible = false;
+
+          adminButton.addEventListener('click', () => {
+            if (adminPanelVisible) {
+              hideAdminPanel();
+            } else {
+              showAdminPanel();
+            }
+          });
+
+          document.body.appendChild(adminButton);
+
+          // Create the admin panel (initially hidden)
+          const adminPanel = document.createElement('div');
+          adminPanel.id = 'adminPanel';
+          adminPanel.style.position = 'fixed';
+          adminPanel.style.bottom = '60px';
+          adminPanel.style.right = '10px';
+          adminPanel.style.backgroundColor = '#34495e';
+          adminPanel.style.color = 'white';
+          adminPanel.style.padding = '15px';
+          adminPanel.style.borderRadius = '8px';
+          adminPanel.style.width = '300px';
+          adminPanel.style.boxShadow = '0 2px 10px rgba(0,0,0,0.5)';
+          adminPanel.style.zIndex = '999';
+          adminPanel.style.display = 'none';
+
+          adminPanel.innerHTML = `
+        <div style="text-align:center;margin-bottom:15px;font-weight:bold;color:#e74c3c;">
+          ADMIN PANEL - RESTRICTED ACCESS
+        </div>
+        <div style="display:flex;flex-direction:column;gap:10px;">
+          <button id="diagnosticsBtn" style="background:#3498db;border:none;color:white;padding:8px;border-radius:4px;cursor:pointer;">
+            Run Diagnostics
+          </button>
+          <button id="clearDataBtn" style="background:#e74c3c;border:none;color:white;padding:8px;border-radius:4px;cursor:pointer;">
+            Clear All Data
+          </button>
+          <button id="exportDataBtn" style="background:#27ae60;border:none;color:white;padding:8px;border-radius:4px;cursor:pointer;">
+            Export Data
+          </button>
+          <button id="closeAdminBtn" style="background:#7f8c8d;border:none;color:white;padding:8px;border-radius:4px;cursor:pointer;margin-top:10px;">
+            Close
+          </button>
+        </div>
+      `;
+
+          document.body.appendChild(adminPanel);
+
+          // Function to show the admin panel
+          function showAdminPanel() {
+            adminPanel.style.display = 'block';
+            adminPanelVisible = true;
+
+            // Add event listeners to buttons
+            document.getElementById('diagnosticsBtn').addEventListener('click', runDiagnostics);
+            document.getElementById('clearDataBtn').addEventListener('click', confirmClearData);
+            document.getElementById('exportDataBtn').addEventListener('click', exportData);
+            document.getElementById('closeAdminBtn').addEventListener('click', hideAdminPanel);
+          }
+
+          // Function to hide the admin panel
+          function hideAdminPanel() {
+            adminPanel.style.display = 'none';
+            adminPanelVisible = false;
+          }
+
+          // Function to confirm data clearing
+          function confirmClearData() {
+            const confirmed = confirm("WARNING: This will delete ALL data, including archived data. This cannot be undone. Are you sure?");
+            if (confirmed) {
+              localStorage.clear();
+              alert("All data has been cleared. The page will now reload.");
+              location.reload();
+            }
+          }
+
+          // Function to export data
+          function exportData() {
+            try {
+              const allData = {
+                currentDate: new Date().toISOString(),
+                todayKey: todayKey,
+                medicationRecords: medicationRecords,
+                weightRecord: weightRecord,
+                bmRecord: bmRecord,
+                drinkRecord: drinkRecord,
+                mealsRecord: mealsRecord,
+                sleepRecord: sleepRecord,
+                activityRecord: activityRecord,
+                mentalRecord: mentalRecord,
+                physicalSymptoms: physicalSymptoms,
+                notesRecord: notesRecord,
+                archive: JSON.parse(localStorage.getItem('healthArchive') || '{}')
+              };
+
+              const dataStr = JSON.stringify(allData, null, 2);
+              const dataUri = 'data:application/json;charset=utf-8,' + encodeURIComponent(dataStr);
+
+              const exportFileDefaultName = 'health_data_export_' + new Date().toISOString().slice(0, 10) + '.json';
+
+              const linkElement = document.createElement('a');
+              linkElement.setAttribute('href', dataUri);
+              linkElement.setAttribute('download', exportFileDefaultName);
+              linkElement.click();
+            } catch (error) {
+              console.error("Error exporting data:", error);
+              alert("Error exporting data: " + error.message);
+            }
+          }
+        }
+
+        // Replace the existing addDiagnosticsButton function with the new admin section
     function addDiagnosticsButton() {
-      const button = document.createElement('button');
-      button.innerHTML = 'Diagnostics';
-      button.style.position = 'fixed';
-      button.style.bottom = '10px';
-      button.style.right = '10px';
-      button.style.zIndex = '1000';
-      button.style.backgroundColor = '#3498db';
-      button.style.color = 'white';
-      button.style.border = 'none';
-      button.style.borderRadius = '4px';
-      button.style.padding = '8px 12px';
-      button.style.cursor = 'pointer';
-      button.style.boxShadow = '0 2px 5px rgba(0,0,0,0.3)';
-      button.addEventListener('click', runDiagnostics);
-      document.body.appendChild(button);
+      addAdminSection();
     }
 
-    /* -------------------------
-       Initialization
-       ------------------------- */
+        // At page initialization, set the connection status display correctly
     window.addEventListener('DOMContentLoaded', () => {
       document.getElementById('dashboard').style.display = 'flex';
       
-      // Set up the sync toggle button
+      // Set up the sync toggle button and update initial display
       document.getElementById('toggleSyncMode').addEventListener('click', toggleSyncMode);
+      updateConnectionStatusDisplay();
+
+      // Start with a connection test if Google Sheets is enabled
+      if (!CONFIG.localModeOnly && CONFIG.enableGoogleSheets) {
+        const statusBar = document.getElementById('connectionStatusBar');
+        statusBar.style.background = '#3498db';
+        statusBar.querySelector('span').innerHTML = '⏳ Testing Google Sheets Connection...';
+
+        testGoogleSheetsConnection().then(result => {
+          if (result.result === "error" || result.result === "local_only") {
+            CONFIG.localModeOnly = true;
+            updateConnectionStatusDisplay();
+          } else {
+            updateConnectionStatusDisplay();
+          }
+        });
+      }
       
-      // Check if Chart.js is loaded
+      // Rest of initialization
       if (checkChartJsLoaded()) {
         // Make sure all chart canvases are properly accessible
         setTimeout(() => {
@@ -1832,8 +1975,8 @@
       
       generateMedTable();
       
-      // Add diagnostics button
-      addDiagnosticsButton();
+      // Add admin section instead of simple diagnostics button
+      addAdminSection();
       
       // Check for existing data
       const hasExistingData = 
