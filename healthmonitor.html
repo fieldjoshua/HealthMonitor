@@ -150,6 +150,19 @@
       </button>
     </div>
     
+    <!-- Total Progress Card -->
+    <div class="card" style="width:100%;margin-bottom:10px;background:#1e1e1e;">
+      <div style="display:flex;align-items:center;justify-content:space-between;">
+        <div>
+          <div style="font-size:18px;font-weight:bold;">Total Progress</div>
+          <div style="font-size:12px;color:#aaa;">Daily health accomplishments</div>
+        </div>
+        <div id="totalProgressDisplay" style="font-size:24px;font-weight:bold;color:#3498db;">0%</div>
+      </div>
+      <div style="width:100%;height:10px;background:#555;border-radius:5px;margin-top:10px;overflow:hidden;">
+        <div id="totalProgressBar" style="width:0%;height:100%;background:#3498db;border-radius:5px;"></div>
+      </div>
+    </div>
     <!-- Medication Card -->
     <div class="card" onclick="openSection('medSection')">
       <div class="icon"><i class="fas fa-pills" style="color:#e74c3c;"></i></div>
@@ -280,7 +293,19 @@
     </div>
     <div class="input-group">
       <label>Additional notes:</label>
-      <input type="text" id="bmNotes" placeholder="Any other observations">
+      <select id="bmNotes">
+        <option value="">Select or leave blank</option>
+        <option>Difficult to pass</option>
+        <option>Easy to pass</option>
+        <option>Urgent/sudden</option>
+        <option>Multiple BMs today</option>
+        <option>First BM in 2+ days</option>
+        <option>After taking medication</option>
+        <option>After eating</option>
+        <option>With cramping</option>
+        <option>With gas</option>
+        <option>With bloating</option>
+      </select>
     </div>
     <button class="save-btn" onclick="saveSection('bowelMovements')">Submit</button>
   </div>
@@ -318,7 +343,28 @@
     <h2>Meals & Nutrition Reporting</h2>
     <div class="input-group">
       <label>I ate:</label>
-      <input type="text" id="mealDetails" placeholder="Describe your meal">
+      <select id="mealDetails">
+        <option value="">Select meal</option>
+        <option>Toast/bread</option>
+        <option>Cereal</option>
+        <option>Eggs</option>
+        <option>Yogurt</option>
+        <option>Fruit</option>
+        <option>Vegetables</option>
+        <option>Salad</option>
+        <option>Soup</option>
+        <option>Sandwich</option>
+        <option>Chicken</option>
+        <option>Fish</option>
+        <option>Beef/red meat</option>
+        <option>Rice/pasta</option>
+        <option>Protein shake</option>
+        <option>Protein bar</option>
+        <option>Nuts/seeds</option>
+        <option>Cheese</option>
+        <option>Milk/dairy</option>
+        <option>Mixed meal (balanced)</option>
+      </select>
     </div>
     <div class="input-group">
       <label>Meal Type:</label>
@@ -333,8 +379,17 @@
       </select>
     </div>
     <div class="input-group">
-      <label>Protein Amount (g):</label>
-      <input type="number" id="proteinAmount" placeholder="e.g., 20">
+      <label>Protein Amount:</label>
+      <select id="proteinAmount">
+        <option value="">Select amount</option>
+        <option>0g (None)</option>
+        <option>5g (Very low)</option>
+        <option>10g (Low)</option>
+        <option>15g (Moderate)</option>
+        <option>20g (Good)</option>
+        <option>25g (High)</option>
+        <option>30g+ (Very high)</option>
+      </select>
     </div>
     <div class="input-group">
       <label>Appetite:</label>
@@ -354,7 +409,18 @@
     <h2>Sleep Reporting</h2>
     <div class="input-group">
       <label>I slept (hours):</label>
-      <input type="number" id="sleepHours" placeholder="e.g., 7">
+      <select id="sleepHours">
+        <option value="">Select hours</option>
+        <option>Less than 4</option>
+        <option>4</option>
+        <option>5</option>
+        <option>6</option>
+        <option>7</option>
+        <option>8</option>
+        <option>9</option>
+        <option>10</option>
+        <option>More than 10</option>
+      </select>
     </div>
     <div class="input-group">
       <label>Sleep Quality:</label>
@@ -374,16 +440,33 @@
     <h2>Activity Reporting</h2>
     <div class="input-group">
       <label>I was active for (minutes):</label>
-      <input type="number" id="activityMinutes" placeholder="e.g., 30">
+      <select id="activityMinutes">
+        <option value="">Select duration</option>
+        <option>5</option>
+        <option>10</option>
+        <option>15</option>
+        <option>20</option>
+        <option>25</option>
+        <option>30</option>
+        <option>45</option>
+        <option>60 (1 hour)</option>
+        <option>90 (1.5 hours)</option>
+        <option>120+ (2+ hours)</option>
+      </select>
     </div>
     <div class="input-group">
       <label>Activity Type:</label>
       <select id="activityType">
         <option value="">Select activity</option>
         <option>Walking</option>
-        <option>Running</option>
-        <option>Cycling</option>
-        <option>Other</option>
+        <option>Light stretching</option>
+        <option>Housework</option>
+        <option>Gardening</option>
+        <option>Standing activities</option>
+        <option>Seated exercises</option>
+        <option>Gentle yoga</option>
+        <option>Physical therapy exercises</option>
+        <option>Other light activity</option>
       </select>
     </div>
     <button class="save-btn" onclick="saveSection('activity')">Submit</button>
@@ -458,7 +541,23 @@
     </div>
     <div class="input-group">
       <label>Notes (optional):</label>
-      <input type="text" id="symptomNotes" placeholder="Additional details">
+      <select id="symptomNotes">
+        <option value="">Select or leave blank</option>
+        <option>Morning only</option>
+        <option>Afternoon only</option>
+        <option>Evening only</option>
+        <option>All day</option>
+        <option>After meals</option>
+        <option>Before meals</option>
+        <option>During activity</option>
+        <option>At rest</option>
+        <option>Interferes with sleep</option>
+        <option>Improves with medication</option>
+        <option>No change with medication</option>
+        <option>Worse than yesterday</option>
+        <option>Better than yesterday</option>
+        <option>Same as yesterday</option>
+      </select>
     </div>
     <button class="save-btn" onclick="recordSymptom()">Record</button>
     <!-- Display recorded symptoms -->
@@ -794,6 +893,43 @@
       const notesPerc = notesRecord ? 100 : 0;
       updateChartData(notesChart, notesPerc);
       document.getElementById('notesChartLabel').innerHTML = notesRecord ? `<i class="fas fa-comment"></i>` : `<i class="fas fa-comment-slash"></i>`;
+
+      // Calculate total progress percentage
+      // Weight each category based on importance and calculate overall percentage
+      const categories = [
+        { name: "Medications", percentage: medPerc, weight: 25 },
+        { name: "Bowel Movements", percentage: bmPerc, weight: 15 },
+        { name: "Drink Intake", percentage: drinkPerc, weight: 15 },
+        { name: "Meals", percentage: mealsPerc, weight: 15 },
+        { name: "Sleep", percentage: sleepPerc, weight: 10 },
+        { name: "Activity", percentage: actPerc, weight: 10 },
+        { name: "Mental Tests", percentage: mentalPerc, weight: 5 },
+        { name: "Symptoms", percentage: symptomPerc, weight: 5 }
+      ];
+
+      let totalWeightedPercentage = 0;
+      let totalWeight = 0;
+
+      categories.forEach(category => {
+        totalWeightedPercentage += category.percentage * category.weight;
+        totalWeight += category.weight;
+      });
+
+      const totalProgress = Math.round(totalWeightedPercentage / totalWeight);
+
+      // Update total progress display
+      document.getElementById('totalProgressDisplay').textContent = `${totalProgress}%`;
+      document.getElementById('totalProgressBar').style.width = `${totalProgress}%`;
+
+      // Set progress bar color based on percentage
+      const progressBar = document.getElementById('totalProgressBar');
+      if (totalProgress < 30) {
+        progressBar.style.background = '#e74c3c'; // Red
+      } else if (totalProgress < 70) {
+        progressBar.style.background = '#f39c12'; // Orange
+      } else {
+        progressBar.style.background = '#2ecc71'; // Green
+      }
     }
     function updateChartData(chart, value) {
       if (!chart) {
