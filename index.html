@@ -405,6 +405,107 @@
         max-width: 180px;
       }
     }
+
+    /* Modal styles */
+    .modal {
+      display: none;
+      position: fixed;
+      z-index: 9999;
+      left: 0;
+      top: 0;
+      width: 100%;
+      height: 100%;
+      overflow: auto;
+      background-color: rgba(0,0,0,0.7);
+    }
+
+    .modal-content {
+      background-color: var(--bg-card);
+      margin: 5% auto;
+      padding: 20px;
+      border: 1px solid #555;
+      border-radius: var(--radius-md);
+      width: 85%;
+      max-width: 700px;
+      max-height: 85vh;
+      overflow-y: auto;
+      color: var(--color-text);
+      box-shadow: var(--shadow-lg);
+    }
+
+    .close-modal {
+      color: #aaa;
+      float: right;
+      font-size: 28px;
+      font-weight: bold;
+      cursor: pointer;
+    }
+
+    .close-modal:hover,
+    .close-modal:focus {
+      color: var(--color-primary);
+      text-decoration: none;
+    }
+
+    .checklist-container {
+      margin-top: 15px;
+    }
+
+    .checklist-container ol {
+      margin-left: 20px;
+      padding-left: 15px;
+    }
+
+    .checklist-container li {
+      margin-bottom: 12px;
+    }
+
+    .checklist-container ul {
+      margin-top: 5px;
+      padding-left: 25px;
+    }
+
+    .checklist-container ul li {
+      margin-bottom: 5px;
+      font-size: 0.95em;
+    }
+
+    .info-button {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin-top: 12px;
+      background-color: rgba(0,0,0,0.2);
+      color: var(--color-text);
+      border: 1px solid rgba(255,255,255,0.1);
+      padding: 8px 12px;
+      border-radius: var(--radius-sm);
+      font-size: 14px;
+      cursor: pointer;
+      transition: all 0.2s ease;
+    }
+
+    .info-button:hover {
+      background-color: rgba(255,255,255,0.1);
+    }
+
+    .info-button i {
+      margin-right: 8px;
+      color: var(--color-info);
+    }
+
+    /* Responsive adjustments */
+    @media (max-width: 600px) {
+      .modal-content {
+        width: 95%;
+        margin: 10% auto;
+        padding: 15px;
+      }
+
+      .checklist-container {
+        font-size: 14px;
+      }
+    }
   </style>
 </head>
 <body>
@@ -435,6 +536,9 @@
       <div class="progress-bar-container">
         <div id="totalProgressBar" class="progress-bar" style="width:0%;"></div>
       </div>
+      <button id="infoButton" class="info-button" onclick="showChecklist()">
+        <i class="fas fa-info-circle"></i> Daily Checklist
+      </button>
     </div>
     <!-- Medication Card -->
     <div class="card" onclick="openSection('medSection')">
@@ -896,6 +1000,84 @@
       <textarea id="notesText" placeholder="Enter any observations, concerns, or questions..."></textarea>
     </div>
     <button class="save-btn" onclick="saveSection('notes')">Submit</button>
+  </div>
+
+  <!-- Add a checklist modal that will be hidden by default -->
+  <div id="checklistModal" class="modal">
+    <div class="modal-content">
+      <span class="close-modal" onclick="hideChecklist()">&times;</span>
+      <h2>Daily 100% Completion Checklist</h2>
+      <div class="checklist-container">
+        <ol>
+          <li><strong>Medications</strong> - All scheduled doses must be taken:
+            <ul>
+              <li>Lactulose (30 mL, 2-3x/day)</li>
+              <li>Rifaximin (550 mg, morning and evening)</li>
+              <li>Ursodiol (~500 mg, morning and evening)</li>
+              <li>Ferrous Gluconate (324 mg, morning)</li>
+              <li>Levothyroxine (25 mcg, morning)</li>
+              <li>Losartan (50 mg, morning)</li>
+              <li>Cholestyramine (4g, 1-2x/day)</li>
+              <li>Calcium (1200 mg, daily)</li>
+              <li>Vitamin D (≥1000 IU, daily)</li>
+              <li>Hydroxyzine (25 mg, as needed for itching)</li>
+            </ul>
+          </li>
+          <li><strong>Weight</strong> - Record daily weight measurement</li>
+          <li><strong>Bowel Movements</strong> - Record bowel movements:
+            <ul>
+              <li>Target is 2-3 soft stools per day</li>
+              <li>Record stool type, color, and any relevant notes</li>
+            </ul>
+          </li>
+          <li><strong>Drink Intake</strong> - Track fluid consumption:
+            <ul>
+              <li>Target is 1.5-2 liters (6-8 cups) daily</li>
+              <li>Record amount and type of fluids consumed</li>
+            </ul>
+          </li>
+          <li><strong>Meals & Nutrition</strong> - Record meals with:
+            <ul>
+              <li>Protein intake (target: 1.0-1.5 g/kg/day)</li>
+              <li>Salt intake (target: less than 2 grams/day)</li>
+              <li>Appetite level</li>
+            </ul>
+          </li>
+          <li><strong>Sleep</strong> - Record:
+            <ul>
+              <li>Hours slept</li>
+              <li>Sleep quality</li>
+            </ul>
+          </li>
+          <li><strong>Activity</strong> - Record daily physical activity:
+            <ul>
+              <li>Duration of activity (aim for at least 20 minutes)</li>
+              <li>Type of activity (walking, light stretching, etc.)</li>
+            </ul>
+          </li>
+          <li><strong>Mental/Physical Tests</strong> - Complete at least 2 of these assessments:
+            <ul>
+              <li>Alert & Oriented check</li>
+              <li>Hand tremor test</li>
+              <li>Memory test</li>
+              <li>Neurological signs assessment</li>
+            </ul>
+          </li>
+          <li><strong>Physical Symptoms</strong> - Report any symptoms:
+            <ul>
+              <li>Record any symptoms experienced (itching, nausea, swelling, etc.)</li>
+              <li>Rate severity</li>
+              <li>Note timing and circumstances</li>
+            </ul>
+          </li>
+          <li><strong>Notes</strong> - Optional but helpful for 100% completion:
+            <ul>
+              <li>Record any additional observations or concerns</li>
+            </ul>
+          </li>
+        </ol>
+      </div>
+    </div>
   </div>
 
   <script>
@@ -4381,6 +4563,27 @@
                   console.log("Original initCharts called, redirecting to retry mechanism");
                   initChartsWithRetry(0);
                 }
+
+  /* -------------------------
+     Checklist Modal Functions
+     ------------------------- */
+  function showChecklist() {
+    document.getElementById('checklistModal').style.display = 'block';
+    // Scroll to top of modal
+    document.querySelector('.modal-content').scrollTop = 0;
+  }
+
+  function hideChecklist() {
+    document.getElementById('checklistModal').style.display = 'none';
+  }
+
+  // Close the modal when clicking outside of it
+  window.onclick = function (event) {
+    const modal = document.getElementById('checklistModal');
+    if (event.target == modal) {
+      hideChecklist();
+    }
+  }
               </script>
     <!-- Footer with logo and copyright -->
     <footer class="footer">
