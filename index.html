@@ -111,6 +111,24 @@
       font-weight: 600;
       z-index: 10;
       pointer-events: none;
+      text-align: center;
+      width: 100%;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      line-height: 1.2;
+    }
+    
+    .chart-label span {
+      display: block;
+      margin-top: 2px;
+    }
+    
+    .chart-label i {
+      font-size: 16px;
+      display: block;
+      margin-bottom: 2px;
     }
     
     .label {
@@ -313,6 +331,7 @@
       .card { width: 140px; padding: 12px; }
       .chart-container { width: 70px; height: 70px; }
       .chart-label { font-size: 14px; }
+      .chart-label i { font-size: 14px; }
       .label { font-size: 12px; }
       .section { padding: 16px; }
     }
@@ -614,10 +633,10 @@
       <div class="icon">
         <!-- CUSTOM GRAPHIC EXAMPLE - Replace this Font Awesome icon with your own image -->
         <!-- <i class="fas fa-pills" style="color:#e74c3c;"></i> -->
-      
+        
         <!-- To use a custom image, uncomment the next line and add your image file -->
         <!-- <img src="medication-icon.png" alt="Medication" width="28" height="28"> -->
-      
+        
         <!-- Keep the original icon until you have your images ready -->
         <i class="fas fa-pills" style="color:#e74c3c;"></i>
       </div>
@@ -625,8 +644,8 @@
         <canvas id="medChart"></canvas>
         <div class="chart-label" id="medChartLabel">
           <!-- Example of custom completion image in label -->
-          <!-- <img src="check-icon.png" alt="Complete" width="16" height="16" class="completion-icon"><br> -->
-          <i class="fas fa-check-circle"></i><br>
+          <!-- <img src="check-icon.png" alt="Complete" width="16" height="16" class="completion-icon"> -->
+          <i class="fas fa-check-circle"></i>
           <span>0%</span>
         </div>
       </div>
@@ -638,7 +657,7 @@
       <div class="icon"><i class="fas fa-weight" style="color:#1abc9c;"></i></div>
       <div class="chart-container">
         <canvas id="weightChart"></canvas>
-        <div class="chart-label" id="weightChartLabel">-</div>
+        <div class="chart-label" id="weightChartLabel"><span>-</span></div>
       </div>
       <div class="label">Weight</div>
     </div>
@@ -647,7 +666,7 @@
       <div class="icon"><i class="fas fa-poo" style="color:#27ae60;"></i></div>
       <div class="chart-container">
         <canvas id="bmChart"></canvas>
-        <div class="chart-label" id="bmChartLabel">0/3</div>
+        <div class="chart-label" id="bmChartLabel"><span>0/3</span></div>
       </div>
       <div class="label">Bowel Movements</div>
     </div>
@@ -656,7 +675,7 @@
       <div class="icon"><i class="fas fa-tint" style="color:#3498db;"></i></div>
       <div class="chart-container">
         <canvas id="drinkChart"></canvas>
-        <div class="chart-label" id="drinkChartLabel">0/8</div>
+        <div class="chart-label" id="drinkChartLabel"><span>0/8</span></div>
       </div>
       <div class="label">Drink Intake</div>
     </div>
@@ -665,7 +684,7 @@
       <div class="icon"><i class="fas fa-utensils" style="color:#f1c40f;"></i></div>
       <div class="chart-container">
         <canvas id="mealsChart"></canvas>
-        <div class="chart-label" id="mealsChartLabel">0/5</div>
+        <div class="chart-label" id="mealsChartLabel"><span>0/5</span></div>
       </div>
       <div class="label">Meals</div>
     </div>
@@ -674,7 +693,7 @@
       <div class="icon"><i class="fas fa-bed" style="color:#8e44ad;"></i></div>
       <div class="chart-container">
         <canvas id="sleepChart"></canvas>
-        <div class="chart-label" id="sleepChartLabel">0h</div>
+        <div class="chart-label" id="sleepChartLabel"><span>0h</span></div>
       </div>
       <div class="label">Sleep</div>
     </div>
@@ -683,7 +702,7 @@
       <div class="icon"><i class="fas fa-running" style="color:#e67e22;"></i></div>
       <div class="chart-container">
         <canvas id="activityChart"></canvas>
-        <div class="chart-label" id="activityChartLabel">0m</div>
+        <div class="chart-label" id="activityChartLabel"><span>0m</span></div>
       </div>
       <div class="label">Activity</div>
     </div>
@@ -692,7 +711,7 @@
       <div class="icon"><i class="fas fa-brain" style="color:#2ecc71;"></i></div>
       <div class="chart-container">
         <canvas id="mentalChart"></canvas>
-        <div class="chart-label" id="mentalChartLabel">0/2</div>
+        <div class="chart-label" id="mentalChartLabel"><span>0/2</span></div>
       </div>
       <div class="label">Mental/Physical</div>
     </div>
@@ -701,7 +720,7 @@
       <div class="icon"><i class="fas fa-stethoscope" style="color:#f39c12;"></i></div>
       <div class="chart-container">
         <canvas id="symptomChart"></canvas>
-        <div class="chart-label" id="symptomChartLabel">0/1</div>
+        <div class="chart-label" id="symptomChartLabel"><span>0/1</span></div>
       </div>
       <div class="label">Symptoms</div>
     </div>
@@ -720,6 +739,14 @@
   <div id="medSection" class="section">
     <button class="btn-back" onclick="closeSection()">← Back to Dashboard</button>
     <h2>Today's Medications</h2>
+    <div class="info-card">
+      <strong>Important Medication Instructions:</strong><br>
+      • Lactulose: Adjust dose to achieve 2-3 soft stools per day<br>
+      • Ferrous Gluconate: Take with food. Avoid taking near Cholestyramine (separate by 4+ hours)<br>
+      • Levothyroxine: Take in morning on empty stomach. Separate from Cholestyramine by 4+ hours<br>
+      • Hydroxyzine: Causes drowsiness. Use mainly at night for itching<br>
+      • Cholestyramine: Take with water/juice. Separate from other medications
+    </div>
     <table>
       <thead>
         <tr>
@@ -847,8 +874,12 @@
     <button class="btn-back" onclick="closeSection()">← Back to Dashboard</button>
     <h2>Meals & Nutrition Reporting</h2>
     <div class="info-card">
-      Protein Goal: 1.0–1.5 g/kg/day (include in every meal)<br>
-      Salt Restriction: Less than 2 grams/day
+      <strong>Nutritional Guidelines:</strong><br>
+      • Protein Goal: 1.0–1.5 g/kg/day (include in every meal)<br>
+      • Favor plant/dairy protein sources when possible<br>
+      • Include a bedtime protein snack for optimal nutrition<br>
+      • Salt Restriction: Less than 2 grams/day (to prevent fluid retention)<br>
+      • Stay hydrated unless fluid restricted
     </div>
     <div class="input-group">
       <label>I ate:</label>
@@ -945,6 +976,13 @@
   <div id="activitySection" class="section">
     <button class="btn-back" onclick="closeSection()">← Back to Dashboard</button>
     <h2>Activity Reporting</h2>
+    <div class="info-card">
+      <strong>Activity Guidelines:</strong><br>
+      • Encourage walking/light activity as tolerated<br>
+      • Avoid straining exercises or inversion poses<br>
+      • Rest if feeling tired or experiencing symptoms<br>
+      • Start with short durations and increase gradually
+    </div>
     <div class="input-group">
       <label>I was active for (minutes):</label>
       <select id="activityMinutes">
@@ -1023,6 +1061,13 @@
   <div id="symptomSection" class="section">
     <button class="btn-back" onclick="closeSection()">← Back to Dashboard</button>
     <h2>Physical Symptoms Reporting</h2>
+    <div class="info-card" style="border-left: 3px solid #e74c3c;">
+      <strong>IMPORTANT - DO NOT USE:</strong><br>
+      • NO ALCOHOL at all (permanent restriction)<br>
+      • NO NSAIDs (ibuprofen, naproxen, etc.)<br>
+      • NO sedatives or opioids unless cleared by physician<br>
+      • NO herbal supplements without doctor approval
+    </div>
     <div class="input-group">
       <label>Symptom:</label>
       <select id="symptomSelect">
@@ -1657,45 +1702,45 @@
       }, 0);
       const medPerc = medGoal ? Math.round((medicationRecords.length / medGoal) * 100) : 0;
       updateChartData(medChart, medPerc);
-      document.getElementById('medChartLabel').innerHTML = `<i class="fas fa-pills"></i><br>${medPerc}%`;
+      document.getElementById('medChartLabel').innerHTML = `<i class="fas fa-pills"></i><span>${medPerc}%</span>`;
       
       // Weight: binary goal (recorded or not)
       const weightPerc = weightRecord.weight ? 100 : 0;
       updateChartData(weightChart, weightPerc);
-      document.getElementById('weightChartLabel').textContent = weightRecord.weight ? `${weightRecord.weight}` : "-";
+      document.getElementById('weightChartLabel').innerHTML = weightRecord.weight ? `<span>${weightRecord.weight}</span>` : "<span>-</span>";
       
       // Bowel Movements: target = BM_GOAL
       // Count total bowel movements for the day
       const bmCount = bowelMovements.length > 0 ? bowelMovements.length : (typeof bmRecord === 'object' && bmRecord.type ? 1 : 0);
       const bmPerc = Math.min(Math.round((bmCount / BM_GOAL) * 100), 100);
       updateChartData(bmChart, bmPerc);
-      document.getElementById('bmChartLabel').textContent = `${bmCount}/${BM_GOAL}`;
+      document.getElementById('bmChartLabel').innerHTML = `<span>${bmCount}/${BM_GOAL}</span>`;
       
       // Drink Intake: target = DRINK_GOAL cups
       // Count all drink entries
       const drinkCount = drinkEntries.length > 0 ? drinkEntries.length : (drinkRecord.amount ? 1 : 0);
       const drinkPerc = Math.min(Math.round((drinkCount / DRINK_GOAL) * 100), 100);
       updateChartData(drinkChart, drinkPerc);
-      document.getElementById('drinkChartLabel').textContent = `${drinkCount}/${DRINK_GOAL}`;
+      document.getElementById('drinkChartLabel').innerHTML = `<span>${drinkCount}/${DRINK_GOAL}</span>`;
       
       // Meals: target = MEALS_GOAL meals
       // Count all meal entries
       const mealCount = mealEntries.length > 0 ? mealEntries.length : (mealsRecord.details ? 1 : 0);
       const mealsPerc = Math.min(Math.round((mealCount / MEALS_GOAL) * 100), 100);
       updateChartData(mealsChart, mealsPerc);
-      document.getElementById('mealsChartLabel').textContent = `${mealCount}/${MEALS_GOAL}`;
+      document.getElementById('mealsChartLabel').innerHTML = `<span>${mealCount}/${MEALS_GOAL}</span>`;
       
       // Sleep: percentage = (hours / SLEEP_GOAL)*100, cap at 100
       const sleepVal = sleepRecord.hours || 0;
       const sleepPerc = Math.min(Math.round((sleepVal / SLEEP_GOAL) * 100), 100);
       updateChartData(sleepChart, sleepPerc);
-      document.getElementById('sleepChartLabel').textContent = sleepVal ? `${sleepVal}h` : "0h";
+      document.getElementById('sleepChartLabel').innerHTML = sleepVal ? `<span>${sleepVal}h</span>` : "<span>0h</span>";
       
       // Activity: percentage = (minutes / ACTIVITY_GOAL)*100, cap at 100
       const actVal = activityRecord.minutes || 0;
       const actPerc = Math.min(Math.round((actVal / ACTIVITY_GOAL) * 100), 100);
       updateChartData(activityChart, actPerc);
-      document.getElementById('activityChartLabel').textContent = actVal ? `${actVal}m` : "0m";
+      document.getElementById('activityChartLabel').innerHTML = actVal ? `<span>${actVal}m</span>` : "<span>0m</span>";
       
       // Mental/Physical: binary goal (now requires at least 2 test parts)
       let mentalTestsCompleted = 0;
@@ -1715,12 +1760,12 @@
       // Mark as complete if at least 2 tests were done
       const mentalPerc = mentalTestsCompleted >= 2 ? 100 : 0;
       updateChartData(mentalChart, mentalPerc);
-      document.getElementById('mentalChartLabel').textContent = mentalPerc === 100 ? "2/2" : `${mentalTestsCompleted}/2`;
+      document.getElementById('mentalChartLabel').innerHTML = mentalPerc === 100 ? "<span>2/2</span>" : `<span>${mentalTestsCompleted}/2</span>`;
       
       // Physical Symptoms: binary goal (at least one symptom reported)
       const symptomPerc = physicalSymptoms.length > 0 ? 100 : 0;
       updateChartData(symptomChart, symptomPerc);
-      document.getElementById('symptomChartLabel').textContent = physicalSymptoms.length > 0 ? "1/1" : "0/1";
+      document.getElementById('symptomChartLabel').innerHTML = physicalSymptoms.length > 0 ? "<span>1/1</span>" : "<span>0/1</span>";
       
       // Notes: binary goal
       const notesPerc = notesRecord ? 100 : 0;
