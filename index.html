@@ -314,6 +314,49 @@
       .label { font-size: 12px; }
       .section { padding: 16px; }
     }
+
+    /* Add the footer styles to the CSS */
+    .footer {
+      width: 100%;
+      padding: 16px 0;
+      margin-top: 30px;
+      text-align: center;
+      font-size: 12px;
+      color: var(--color-text-muted);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 8px;
+    }
+
+    /* Update the logo container styling to work with SVG */
+    .logo-container {
+      width: 100px;
+      margin: 0 auto;
+      opacity: 0.7;
+      transition: opacity 0.2s ease;
+    }
+
+    .logo-container:hover {
+      opacity: 1;
+    }
+
+    .logo-container svg {
+      width: 100%;
+      height: auto;
+    }
+
+    /* Add responsive rules for the footer */
+    @media (max-width: 600px) {
+      .footer {
+        padding: 12px 0;
+        margin-top: 20px;
+      }
+      
+      .logo-container {
+        width: 80px;
+      }
+    }
   </style>
 </head>
 <body>
@@ -2166,5 +2209,21 @@
       }
     });
   </script>
-</body>
+    <!-- Footer with logo and copyright -->
+    <footer class="footer">
+      <div class="logo-container">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200">
+          <g fill="#94a3b8">
+            <path d="M20,20 L180,20 L180,180 L20,180 L20,20 Z" fill="none" stroke="#94a3b8" stroke-width="2" />
+            <path d="M60,60 L140,60 L140,140 L60,140 L60,60 Z" fill="none" stroke="#94a3b8" stroke-width="2" />
+            <path d="M20,20 L120,160" stroke="#94a3b8" stroke-width="2" />
+            <path d="M180,180 L80,40" stroke="#94a3b8" stroke-width="2" />
+            <text x="50" y="110" font-family="Inter, sans-serif" font-weight="bold" font-size="12">FORRESTER</text>
+            <text x="70" y="130" font-family="Inter, sans-serif" font-weight="bold" font-size="12">FIELD</text>
+          </g>
+        </svg>
+      </div>
+      <div>© ForresterField, 2025</div>
+    </footer>
+  </body>
 </html>
