@@ -761,19 +761,20 @@
       -->
   <!-- MAIN DASHBOARD -->
   <div id="dashboard">
-    <!-- Total Progress Card with max-width added -->
-    <div class="progress-card" style="max-width: 500px; margin: 0 auto 16px auto;">
-      <div class="total-progress-container">
+    <!-- Total Progress Card with reduced height -->
+    <div class="progress-card" style="padding: 10px 16px;">
+      <div class="total-progress-container" style="display: flex; justify-content: space-between; align-items: center;">
         <div class="total-progress-info">
           <div class="title">Total Progress</div>
           <div class="subtitle">Daily health accomplishments</div>
         </div>
-        <div id="totalProgressDisplay">0%</div>
+        <div id="totalProgressDisplay" style="font-size: 18px; font-weight: bold;">0%</div>
       </div>
-      <div class="progress-bar-container">
+      <div class="progress-bar-container" style="height: 6px; margin-top: 8px;">
         <div id="totalProgressBar" class="progress-bar" style="width:0%;"></div>
       </div>
-      <button id="infoButton" class="info-button" onclick="showChecklist()">
+      <button id="infoButton" class="info-button" onclick="showChecklist()"
+        style="margin-top: 8px; padding: 4px 8px; font-size: 13px;">
         <i class="fas fa-info-circle"></i> Daily Checklist
       </button>
     </div>
