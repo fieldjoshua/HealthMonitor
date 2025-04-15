@@ -569,6 +569,89 @@
       position: relative;
       z-index: 1;
     }
+    
+    /* Add CSS for the checkbox list styling */
+    .checkbox-list {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+      margin-top: 10px;
+    }
+    
+    @media (max-width: 600px) {
+      .checkbox-list {
+        grid-template-columns: 1fr;
+      }
+    }
+    
+    .checkbox-list div {
+      display: flex;
+      align-items: center;
+    }
+    
+    .checkbox-list input[type="checkbox"] {
+      margin-right: 8px;
+    }
+    
+    /* Styling for the section headers with icons */
+    .section-header {
+      display: flex;
+      align-items: center;
+      margin-bottom: 20px;
+    }
+    
+    .section-header .icon {
+      font-size: 28px;
+      margin-right: 15px;
+      border-radius: 50%;
+      width: 50px;
+      height: 50px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: rgba(255,255,255,0.1);
+    }
+    
+    .section-header h2 {
+      margin: 0;
+    }
+    
+    /* Color variants for sections based on dashboard colors */
+    .med-color { color: #e74c3c; border-color: #e74c3c; }
+    .med-bg { background-color: rgba(231, 76, 60, 0.05); }
+    
+    .weight-color { color: #1abc9c; border-color: #1abc9c; }
+    .weight-bg { background-color: rgba(26, 188, 156, 0.05); }
+    
+    .bm-color { color: #27ae60; border-color: #27ae60; }
+    .bm-bg { background-color: rgba(39, 174, 96, 0.05); }
+    
+    .drink-color { color: #3498db; border-color: #3498db; }
+    .drink-bg { background-color: rgba(52, 152, 219, 0.05); }
+    
+    .meals-color { color: #f1c40f; border-color: #f1c40f; }
+    .meals-bg { background-color: rgba(241, 196, 15, 0.05); }
+    
+    .sleep-color { color: #8e44ad; border-color: #8e44ad; }
+    .sleep-bg { background-color: rgba(142, 68, 173, 0.05); }
+    
+    .activity-color { color: #e67e22; border-color: #e67e22; }
+    .activity-bg { background-color: rgba(230, 126, 34, 0.05); }
+    
+    .mental-color { color: #2ecc71; border-color: #2ecc71; }
+    .mental-bg { background-color: rgba(46, 204, 113, 0.05); }
+    
+    .symptom-color { color: #f39c12; border-color: #f39c12; }
+    .symptom-bg { background-color: rgba(243, 156, 18, 0.05); }
+    
+    .notes-color { color: #34495e; border-color: #34495e; }
+    .notes-bg { background-color: rgba(52, 73, 94, 0.05); }
+    
+    /* Set color-themed borders for info cards */
+    .info-card.themed-border {
+      border-left-width: 3px;
+      border-left-style: solid;
+    }
   </style>
 </head>
 <body>
@@ -736,10 +819,13 @@
   </div>
 
   <!-- SECTION: Medications -->
-  <div id="medSection" class="section">
+  <div id="medSection" class="section med-bg">
     <button class="btn-back" onclick="closeSection()">← Back to Dashboard</button>
-    <h2>Today's Medications</h2>
-    <div class="info-card">
+    <div class="section-header">
+      <div class="icon med-color"><i class="fas fa-pills"></i></div>
+      <h2>Today's Medications</h2>
+    </div>
+    <div class="info-card themed-border med-color">
       <strong>Important Medication Instructions:</strong><br>
       • Lactulose: Adjust dose to achieve 2-3 soft stools per day<br>
       • Ferrous Gluconate: Take with food. Avoid taking near Cholestyramine (separate by 4+ hours)<br>
@@ -765,10 +851,13 @@
   </div>
 
   <!-- SECTION: Weight -->
-  <div id="weightSection" class="section">
+  <div id="weightSection" class="section weight-bg">
     <button class="btn-back" onclick="closeSection()">← Back to Dashboard</button>
-    <h2>Daily Weight Tracking</h2>
-    <div class="info-card">
+    <div class="section-header">
+      <div class="icon weight-color"><i class="fas fa-weight"></i></div>
+      <h2>Daily Weight Tracking</h2>
+    </div>
+    <div class="info-card themed-border weight-color">
       For best results, weigh yourself in the morning after using the bathroom and before eating or drinking.
     </div>
     <div class="input-group">
@@ -794,10 +883,13 @@
   </div>
 
   <!-- SECTION: Bowel Movements -->
-  <div id="bmSection" class="section">
+  <div id="bmSection" class="section bm-bg">
     <button class="btn-back" onclick="closeSection()">← Back to Dashboard</button>
-    <h2>Bowel Movement Reporting</h2>
-    <div class="info-card">
+    <div class="section-header">
+      <div class="icon bm-color"><i class="fas fa-poo"></i></div>
+      <h2>Bowel Movement Reporting</h2>
+    </div>
+    <div class="info-card themed-border bm-color">
       Target: 2–3 soft stools per day (Lactulose dose should be adjusted to achieve this)
     </div>
     <div class="input-group">
@@ -840,10 +932,13 @@
   </div>
 
   <!-- SECTION: Drink Intake -->
-  <div id="drinkSection" class="section">
+  <div id="drinkSection" class="section drink-bg">
     <button class="btn-back" onclick="closeSection()">← Back to Dashboard</button>
-    <h2>Drink Intake Reporting</h2>
-    <div class="info-card">
+    <div class="section-header">
+      <div class="icon drink-color"><i class="fas fa-tint"></i></div>
+      <h2>Drink Intake Reporting</h2>
+    </div>
+    <div class="info-card themed-border drink-color">
       Target: 1.5–2 liters of water daily (about 6-8 cups)
     </div>
     <div class="input-group">
@@ -870,10 +965,13 @@
   </div>
 
   <!-- SECTION: Meals & Nutrition -->
-  <div id="mealsSection" class="section">
+  <div id="mealsSection" class="section meals-bg">
     <button class="btn-back" onclick="closeSection()">← Back to Dashboard</button>
-    <h2>Meals & Nutrition Reporting</h2>
-    <div class="info-card">
+    <div class="section-header">
+      <div class="icon meals-color"><i class="fas fa-utensils"></i></div>
+      <h2>Meals & Nutrition Reporting</h2>
+    </div>
+    <div class="info-card themed-border meals-color">
       <strong>Nutritional Guidelines:</strong><br>
       • Protein Goal: 1.0–1.5 g/kg/day (include in every meal)<br>
       • Favor plant/dairy protein sources when possible<br>
@@ -942,9 +1040,12 @@
   </div>
 
   <!-- SECTION: Sleep -->
-  <div id="sleepSection" class="section">
+  <div id="sleepSection" class="section sleep-bg">
     <button class="btn-back" onclick="closeSection()">← Back to Dashboard</button>
-    <h2>Sleep Reporting</h2>
+    <div class="section-header">
+      <div class="icon sleep-color"><i class="fas fa-bed"></i></div>
+      <h2>Sleep Reporting</h2>
+    </div>
     <div class="input-group">
       <label>I slept (hours):</label>
       <select id="sleepHours">
@@ -973,10 +1074,13 @@
   </div>
 
   <!-- SECTION: Activity -->
-  <div id="activitySection" class="section">
+  <div id="activitySection" class="section activity-bg">
     <button class="btn-back" onclick="closeSection()">← Back to Dashboard</button>
-    <h2>Activity Reporting</h2>
-    <div class="info-card">
+    <div class="section-header">
+      <div class="icon activity-color"><i class="fas fa-running"></i></div>
+      <h2>Activity Reporting</h2>
+    </div>
+    <div class="info-card themed-border activity-color">
       <strong>Activity Guidelines:</strong><br>
       • Encourage walking/light activity as tolerated<br>
       • Avoid straining exercises or inversion poses<br>
@@ -1018,10 +1122,13 @@
   </div>
 
   <!-- SECTION: Mental/Physical Tests -->
-  <div id="mentalSection" class="section">
+  <div id="mentalSection" class="section mental-bg">
     <button class="btn-back" onclick="closeSection()">← Back to Dashboard</button>
-    <h2>Mental &amp; Physical Tests</h2>
-    <div class="info-card">
+    <div class="section-header">
+      <div class="icon mental-color"><i class="fas fa-brain"></i></div>
+      <h2>Mental &amp; Physical Tests</h2>
+    </div>
+    <div class="info-card themed-border mental-color">
       Complete at least 2 tests below to mark this section as complete.
     </div>
     <div class="input-group">
@@ -1058,10 +1165,13 @@
   </div>
 
   <!-- SECTION: Physical Symptoms -->
-  <div id="symptomSection" class="section">
+  <div id="symptomSection" class="section symptom-bg">
     <button class="btn-back" onclick="closeSection()">← Back to Dashboard</button>
-    <h2>Physical Symptoms Reporting</h2>
-    <div class="info-card" style="border-left: 3px solid #e74c3c;">
+    <div class="section-header">
+      <div class="icon symptom-color"><i class="fas fa-stethoscope"></i></div>
+      <h2>Physical Symptoms Reporting</h2>
+    </div>
+    <div class="info-card themed-border symptom-color" style="border-left: 3px solid #e74c3c;">
       <strong>IMPORTANT - DO NOT USE:</strong><br>
       • NO ALCOHOL at all (permanent restriction)<br>
       • NO NSAIDs (ibuprofen, naproxen, etc.)<br>
@@ -1069,52 +1179,76 @@
       • NO herbal supplements without doctor approval
     </div>
     <div class="input-group">
-      <label>Symptom:</label>
-      <select id="symptomSelect">
-        <option value="">Select symptom</option>
-        <option>Itching</option>
-        <option>Nausea</option>
-        <option>Abdominal pain</option>
-        <option>Swelling (legs/abdomen)</option>
-        <option>Yellowing of skin/eyes</option>
-        <option>Fatigue</option>
-        <option>Loss of appetite</option>
-        <option>Dark urine</option>
-        <option>Confusion or disorientation</option>
-        <option>Bleeding/bruising easily</option>
-      </select>
+      <label>Do you have any symptoms today?</label><br>
+      <input type="radio" name="hasSymptoms" id="noSymptoms" value="No" checked> <label for="noSymptoms">No, I have no
+        symptoms today</label><br>
+      <input type="radio" name="hasSymptoms" id="yesSymptoms" value="Yes"> <label for="yesSymptoms">Yes, I have symptoms to
+        report</label>
     </div>
-    <div class="input-group">
-      <label>Severity:</label>
-      <select id="severitySelect">
-        <option value="">Select severity</option>
-        <option>None</option>
-        <option>Mild</option>
-        <option>Moderate</option>
-        <option>Severe</option>
-      </select>
+    
+    <div id="noSymptomsOptions" style="text-align: center; margin-top: 20px;">
+      <button class="save-btn" onclick="confirmNoSymptoms()">Confirm No Symptoms</button>
     </div>
-    <div class="input-group">
-      <label>Notes (optional):</label>
-      <select id="symptomNotes">
-        <option value="">Select or leave blank</option>
-        <option>Morning only</option>
-        <option>Afternoon only</option>
-        <option>Evening only</option>
-        <option>All day</option>
-        <option>After meals</option>
-        <option>Before meals</option>
-        <option>During activity</option>
-        <option>At rest</option>
-        <option>Interferes with sleep</option>
-        <option>Improves with medication</option>
-        <option>No change with medication</option>
-        <option>Worse than yesterday</option>
-        <option>Better than yesterday</option>
-        <option>Same as yesterday</option>
-      </select>
-    </div>
-    <button class="save-btn" onclick="recordSymptom()">Record</button>
+    
+    <div id="symptomFormOptions" style="display: none;">
+        <div class="input-group">
+          <label>Please select the symptom you're experiencing:</label>
+          <div class="checkbox-list">
+            <div><input type="checkbox" id="symptom_itching" name="symptoms[]" value="Itching"> <label
+                for="symptom_itching">Itching</label></div>
+            <div><input type="checkbox" id="symptom_nausea" name="symptoms[]" value="Nausea"> <label
+                for="symptom_nausea">Nausea</label></div>
+            <div><input type="checkbox" id="symptom_abdominal_pain" name="symptoms[]" value="Abdominal pain"> <label
+                for="symptom_abdominal_pain">Abdominal pain</label></div>
+            <div><input type="checkbox" id="symptom_swelling" name="symptoms[]" value="Swelling (legs/abdomen)"> <label
+                for="symptom_swelling">Swelling (legs/abdomen)</label></div>
+            <div><input type="checkbox" id="symptom_yellowing" name="symptoms[]" value="Yellowing of skin/eyes"> <label
+                for="symptom_yellowing">Yellowing of skin/eyes</label></div>
+            <div><input type="checkbox" id="symptom_fatigue" name="symptoms[]" value="Fatigue"> <label
+                for="symptom_fatigue">Fatigue</label></div>
+            <div><input type="checkbox" id="symptom_loss_appetite" name="symptoms[]" value="Loss of appetite"> <label
+                for="symptom_loss_appetite">Loss of appetite</label></div>
+            <div><input type="checkbox" id="symptom_dark_urine" name="symptoms[]" value="Dark urine"> <label
+                for="symptom_dark_urine">Dark urine</label></div>
+            <div><input type="checkbox" id="symptom_confusion" name="symptoms[]" value="Confusion or disorientation"> <label
+                for="symptom_confusion">Confusion or disorientation</label></div>
+            <div><input type="checkbox" id="symptom_bleeding" name="symptoms[]" value="Bleeding/bruising easily"> <label
+                for="symptom_bleeding">Bleeding/bruising easily</label></div>
+          </div>
+          </div>
+      
+      <div class="input-group">
+        <label>Severity:</label>
+        <select id="severitySelect">
+          <option value="">Select severity</option>
+          <option>Mild</option>
+          <option>Moderate</option>
+          <option>Severe</option>
+          </select>
+          </div>
+      
+      <div class="input-group">
+        <label>Notes (optional):</label>
+        <select id="symptomNotes">
+          <option value="">Select or leave blank</option>
+          <option>Morning only</option>
+          <option>Afternoon only</option>
+          <option>Evening only</option>
+          <option>All day</option>
+          <option>After meals</option>
+          <option>Before meals</option>
+          <option>During activity</option>
+          <option>At rest</option>
+          <option>Interferes with sleep</option>
+          <option>Improves with medication</option>
+          <option>No change with medication</option>
+          <option>Worse than yesterday</option>
+          <option>Better than yesterday</option>
+          <option>Same as yesterday</option>
+        </select>
+      </div>
+      <button class="save-btn" onclick="recordSelectedSymptoms()">Record Symptoms</button>
+      </div>
     <!-- Display recorded symptoms -->
     <h3>Today's Symptoms</h3>
     <ul id="symptomList"></ul>
@@ -1122,9 +1256,12 @@
   </div>
 
   <!-- SECTION: Notes -->
-  <div id="notesSection" class="section">
+  <div id="notesSection" class="section notes-bg">
     <button class="btn-back" onclick="closeSection()">← Back to Dashboard</button>
-    <h2>Notes &amp; Additional Comments</h2>
+    <div class="section-header">
+      <div class="icon notes-color"><i class="fas fa-sticky-note"></i></div>
+      <h2>Notes &amp; Additional Comments</h2>
+    </div>
     <div class="input-group">
       <textarea id="notesText" placeholder="Enter any observations, concerns, or questions..."></textarea>
     </div>
@@ -1635,6 +1772,97 @@
       document.getElementById('severitySelect').selectedIndex = 0;
       document.getElementById('symptomNotes').value = "";
     }
+
+  // New function to handle the updated symptom interface
+  function recordSelectedSymptoms() {
+    // Get all checked symptom checkboxes
+    const checkedSymptoms = document.querySelectorAll('input[name="symptoms[]"]:checked');
+
+    if (checkedSymptoms.length === 0) {
+      alert('Please select at least one symptom');
+      return;
+    }
+
+    const severity = document.getElementById('severitySelect').value;
+    if (!severity) {
+      alert('Please select a severity level');
+      return;
+    }
+
+    const notes = document.getElementById('symptomNotes').value;
+    const timestamp = new Date().toLocaleTimeString();
+
+    // Add each checked symptom
+    checkedSymptoms.forEach(checkbox => {
+      physicalSymptoms.push({
+        symptom: checkbox.value,
+        severity: severity,
+        notes: notes,
+        timestamp: timestamp
+      });
+      checkbox.checked = false; // Clear checkbox
+    });
+
+    localStorage.setItem('physicalSymptoms', JSON.stringify(physicalSymptoms));
+    renderSymptoms();
+
+    // Reset fields
+    document.getElementById('severitySelect').selectedIndex = 0;
+    document.getElementById('symptomNotes').selectedIndex = 0;
+  }
+
+  function confirmNoSymptoms() {
+    // Record a "No symptoms" entry to mark the section as complete
+    physicalSymptoms = [{
+      symptom: "No symptoms",
+      severity: "None",
+      notes: "Patient confirmed no symptoms today",
+      timestamp: new Date().toLocaleTimeString()
+    }];
+
+    localStorage.setItem('physicalSymptoms', JSON.stringify(physicalSymptoms));
+    renderSymptoms();
+
+    // Close the section or you could leave it open - uncomment this if you want to close it
+    // saveSection('symptoms');
+  }
+
+  // Add event listeners for the radio buttons
+  document.addEventListener('DOMContentLoaded', function () {
+    // Add to the existing DOMContentLoaded listener or create a new one
+    const setupSymptomForm = function () {
+      const noSymptomsRadio = document.getElementById('noSymptoms');
+      const yesSymptomsRadio = document.getElementById('yesSymptoms');
+      const noSymptomsOptions = document.getElementById('noSymptomsOptions');
+      const symptomFormOptions = document.getElementById('symptomFormOptions');
+
+      if (noSymptomsRadio && yesSymptomsRadio) {
+        noSymptomsRadio.addEventListener('change', function () {
+          if (this.checked) {
+            noSymptomsOptions.style.display = 'block';
+            symptomFormOptions.style.display = 'none';
+          }
+        });
+
+        yesSymptomsRadio.addEventListener('change', function () {
+          if (this.checked) {
+            noSymptomsOptions.style.display = 'none';
+            symptomFormOptions.style.display = 'block';
+          }
+        });
+      }
+    };
+
+    // Call the setup function when the section is opened
+    const originalOpenSection = openSection;
+    openSection = function (sectionId) {
+      originalOpenSection(sectionId);
+      if (sectionId === 'symptomSection') {
+        setupSymptomForm();
+      }
+    };
+  });
+
     function renderSymptoms() {
       const list = document.getElementById('symptomList');
       list.innerHTML = "";
@@ -2548,280 +2776,6 @@
             Export Data
           </button>
           <button id="closeAdminBtn" class="admin-btn admin-btn-secondary">
-            Close
-          </button>
-        </div>
-      `;
-
-                          document.body.appendChild(adminPanel);
-
-                          // Function to show the admin panel
-                          function showAdminPanel() {
-                            adminPanel.style.display = 'block';
-                            adminPanelVisible = true;
-
-                            // Add event listeners to buttons
-                            document.getElementById('diagnosticsBtn').addEventListener('click', runDiagnostics);
-                            document.getElementById('clearDataBtn').addEventListener('click', confirmClearData);
-                            document.getElementById('exportDataBtn').addEventListener('click', exportData);
-                            document.getElementById('closeAdminBtn').addEventListener('click', hideAdminPanel);
-                          }
-
-                          // Function to hide the admin panel
-                          function hideAdminPanel() {
-                            adminPanel.style.display = 'none';
-                            adminPanelVisible = false;
-                          }
-
-                          // Function to confirm data clearing
-                          function confirmClearData() {
-                            const confirmed = confirm("WARNING: This will delete ALL data, including archived data. This cannot be undone. Are you sure?");
-                            if (confirmed) {
-                              localStorage.clear();
-                              alert("All data has been cleared. The page will now reload.");
-                              location.reload();
-                            }
-                          }
-
-                          // Function to export data
-                          function exportData() {
-                            try {
-                              const allData = {
-                                currentDate: new Date().toISOString(),
-                                todayKey: todayKey,
-                                medicationRecords: medicationRecords,
-                                weightRecord: weightRecord,
-                                bmRecord: bmRecord,
-                                drinkRecord: drinkRecord,
-                                mealsRecord: mealsRecord,
-                                sleepRecord: sleepRecord,
-                                activityRecord: activityRecord,
-                                mentalRecord: mentalRecord,
-                                physicalSymptoms: physicalSymptoms,
-                                notesRecord: notesRecord,
-                                archive: JSON.parse(localStorage.getItem('healthArchive') || '{}')
-                              };
-
-                              const dataStr = JSON.stringify(allData, null, 2);
-                              const dataUri = 'data:application/json;charset=utf-8,' + encodeURIComponent(dataStr);
-
-                              const exportFileDefaultName = 'health_data_export_' + new Date().toISOString().slice(0, 10) + '.json';
-
-                              const linkElement = document.createElement('a');
-                              linkElement.setAttribute('href', dataUri);
-                              linkElement.setAttribute('download', exportFileDefaultName);
-                              linkElement.click();
-                            } catch (error) {
-                              console.error("Error exporting data:", error);
-                              alert("Error exporting data: " + error.message);
-                            }
-                          }
-                        }
-
-                        /* -------------------------
-                           Connection Diagnostics
-                           ------------------------- */
-                        async function runDiagnostics() {
-                          const diagnosticsDiv = document.createElement('div');
-                          diagnosticsDiv.className = 'diagnostics-container';
-
-                          diagnosticsDiv.innerHTML = `
-        <h3 class="diagnostics-header">Connection Diagnostics</h3>
-        <div id="diagnosticsResults" class="diagnostics-results"></div>
-        <div class="diagnostics-buttons">
-          <button id="closeDiagnostics" class="admin-btn admin-btn-danger">Close</button>
-          <button id="testHttpbin" class="admin-btn admin-btn-primary">Test Httpbin</button>
-          <button id="testAppScript" class="admin-btn admin-btn-success">Test Apps Script</button>
-        </div>
-        <div class="diagnostics-custom">
-          <input id="customEndpoint" type="text" placeholder="Enter custom endpoint to test">
-          <button id="testCustom" class="admin-btn">Test Custom Endpoint</button>
-        </div>
-      `;
-
-                          document.body.appendChild(diagnosticsDiv);
-
-                          const resultsDiv = document.getElementById('diagnosticsResults');
-
-                          document.getElementById('closeDiagnostics').addEventListener('click', () => {
-                            document.body.removeChild(diagnosticsDiv);
-                          });
-
-                          document.getElementById('testHttpbin').addEventListener('click', async () => {
-                            resultsDiv.innerHTML += `<div style="margin:5px 0;border-bottom:1px dashed #555;padding-bottom:5px;">Testing httpbin.org POST...</div>`;
-                            try {
-                              const response = await fetch('https://httpbin.org/post', {
-                                method: 'POST',
-                                headers: {
-                                  'Content-Type': 'application/json'
-                                },
-                                body: JSON.stringify({ test: 'connection' })
-                              });
-
-                              const data = await response.json();
-                              resultsDiv.innerHTML += `<div style="color:#2ecc71;">✓ Httpbin test successful!</div>`;
-                              resultsDiv.innerHTML += `<div style="max-height:100px;overflow:auto;background:#2c2c2c;padding:5px;margin:5px 0;border-radius:4px;">${JSON.stringify(data, null, 2)}</div>`;
-                            } catch (error) {
-                              resultsDiv.innerHTML += `<div style="color:#e74c3c;">✗ Httpbin test failed: ${error.message}</div>`;
-                            }
-                          });
-
-                          document.getElementById('testAppScript').addEventListener('click', async () => {
-                            resultsDiv.innerHTML += `<div style="margin:5px 0;border-bottom:1px dashed #555;padding-bottom:5px;">Testing Google Apps Script URL...</div>`;
-
-                            // First test with GET request
-                            try {
-                              resultsDiv.innerHTML += `<div>Testing GET request...</div>`;
-                              const getResponse = await fetch(CONFIG.googleSheetsApiUrl);
-                              const getStatus = getResponse.status;
-                              resultsDiv.innerHTML += `<div>GET Status: ${getStatus}</div>`;
-
-                              try {
-                                const getData = await getResponse.json();
-                                resultsDiv.innerHTML += `<div style="color:#2ecc71;">✓ GET response parsed as JSON</div>`;
-                                resultsDiv.innerHTML += `<div style="max-height:100px;overflow:auto;background:#2c2c2c;padding:5px;margin:5px 0;border-radius:4px;">${JSON.stringify(getData, null, 2)}</div>`;
-                              } catch (e) {
-                                const getText = await getResponse.text();
-                                resultsDiv.innerHTML += `<div style="color:#e74c3c;">✗ GET response is not valid JSON</div>`;
-                                resultsDiv.innerHTML += `<div style="max-height:100px;overflow:auto;background:#2c2c2c;padding:5px;margin:5px 0;border-radius:4px;white-space:pre-wrap;font-size:10px;">${getText.substring(0, 500)}${getText.length > 500 ? '...' : ''}</div>`;
-                              }
-                            } catch (error) {
-                              resultsDiv.innerHTML += `<div style="color:#e74c3c;">✗ GET request failed: ${error.message}</div>`;
-                            }
-
-                            // Then test with POST request
-                            try {
-                              resultsDiv.innerHTML += `<div>Testing POST request...</div>`;
-                              const postResponse = await fetch(CONFIG.googleSheetsApiUrl, {
-                                method: 'POST',
-                                headers: {
-                                  'Content-Type': 'application/json'
-                                },
-                                body: JSON.stringify({ test: 'connection' })
-                              });
-
-                              const postStatus = postResponse.status;
-                              resultsDiv.innerHTML += `<div>POST Status: ${postStatus}</div>`;
-
-                              try {
-                                const postData = await postResponse.json();
-                                resultsDiv.innerHTML += `<div style="color:#2ecc71;">✓ POST response parsed as JSON</div>`;
-                                resultsDiv.innerHTML += `<div style="max-height:100px;overflow:auto;background:#2c2c2c;padding:5px;margin:5px 0;border-radius:4px;">${JSON.stringify(postData, null, 2)}</div>`;
-                              } catch (e) {
-                                const postText = await postResponse.text();
-                                resultsDiv.innerHTML += `<div style="color:#e74c3c;">✗ POST response is not valid JSON</div>`;
-                                resultsDiv.innerHTML += `<div style="max-height:100px;overflow:auto;background:#2c2c2c;padding:5px;margin:5px 0;border-radius:4px;white-space:pre-wrap;font-size:10px;">${postText.substring(0, 500)}${postText.length > 500 ? '...' : ''}</div>`;
-                              }
-                            } catch (error) {
-                              resultsDiv.innerHTML += `<div style="color:#e74c3c;">✗ POST request failed: ${error.message}</div>`;
-                            }
-
-                            resultsDiv.innerHTML += `<div style="margin:5px 0;border-bottom:1px dashed #555;padding-bottom:5px;">URL being tested: ${CONFIG.googleSheetsApiUrl}</div>`;
-                          });
-
-                          document.getElementById('testCustom').addEventListener('click', async () => {
-                            const customUrl = document.getElementById('customEndpoint').value;
-                            if (!customUrl) {
-                              resultsDiv.innerHTML += `<div style="color:#e74c3c;">Please enter a URL to test</div>`;
-                              return;
-                            }
-
-                            resultsDiv.innerHTML += `<div style="margin:5px 0;border-bottom:1px dashed #555;padding-bottom:5px;">Testing custom URL: ${customUrl}</div>`;
-
-                            try {
-                              resultsDiv.innerHTML += `<div>Testing GET request...</div>`;
-                              const getResponse = await fetch(customUrl);
-                              const getStatus = getResponse.status;
-                              resultsDiv.innerHTML += `<div>GET Status: ${getStatus}</div>`;
-
-                              try {
-                                const getData = await getResponse.json();
-                                resultsDiv.innerHTML += `<div style="color:#2ecc71;">✓ GET response parsed as JSON</div>`;
-                                resultsDiv.innerHTML += `<div style="max-height:100px;overflow:auto;background:#2c2c2c;padding:5px;margin:5px 0;border-radius:4px;">${JSON.stringify(getData, null, 2)}</div>`;
-                              } catch (e) {
-                                const getText = await getResponse.text();
-                                resultsDiv.innerHTML += `<div style="color:#e74c3c;">✗ GET response is not valid JSON</div>`;
-                                resultsDiv.innerHTML += `<div style="max-height:100px;overflow:auto;background:#2c2c2c;padding:5px;margin:5px 0;border-radius:4px;white-space:pre-wrap;font-size:10px;">${getText.substring(0, 500)}${getText.length > 500 ? '...' : ''}</div>`;
-                              }
-                            } catch (error) {
-                              resultsDiv.innerHTML += `<div style="color:#e74c3c;">✗ GET request failed: ${error.message}</div>`;
-                            }
-                          });
-                        }
-
-                        /* -------------------------
-                           Add Diagnostics Button
-                           ------------------------- */
-                        function addAdminSection() {
-                          // Remove the original diagnostics button if it exists
-                          const existingButton = document.querySelector('button[innerHTML="Diagnostics"]');
-                          if (existingButton) {
-                            try {
-                              existingButton.parentNode.removeChild(existingButton);
-                            } catch (e) {
-                              console.warn("Could not remove existing diagnostics button:", e);
-                            }
-                          }
-
-                          // Create the admin button
-                          const adminButton = document.createElement('button');
-                          adminButton.innerHTML = '⚙️';
-                          adminButton.style.position = 'fixed';
-                          adminButton.style.bottom = '10px';
-                          adminButton.style.right = '10px';
-                          adminButton.style.zIndex = '1000';
-                          adminButton.style.backgroundColor = '#34495e';
-                          adminButton.style.color = 'white';
-                          adminButton.style.border = 'none';
-                          adminButton.style.borderRadius = '50%';
-                          adminButton.style.width = '40px';
-                          adminButton.style.height = '40px';
-                          adminButton.style.fontSize = '18px';
-                          adminButton.style.cursor = 'pointer';
-                          adminButton.style.boxShadow = '0 2px 5px rgba(0,0,0,0.3)';
-
-                          let adminPanelVisible = false;
-
-                          adminButton.addEventListener('click', () => {
-                            if (adminPanelVisible) {
-                              hideAdminPanel();
-                            } else {
-                              showAdminPanel();
-                            }
-                          });
-
-                          document.body.appendChild(adminButton);
-
-                          // Create the admin panel (initially hidden)
-                          const adminPanel = document.createElement('div');
-                          adminPanel.id = 'adminPanel';
-                          adminPanel.style.position = 'fixed';
-                          adminPanel.style.bottom = '60px';
-                          adminPanel.style.right = '10px';
-                          adminPanel.style.backgroundColor = '#34495e';
-                          adminPanel.style.color = 'white';
-                          adminPanel.style.padding = '15px';
-                          adminPanel.style.borderRadius = '8px';
-                          adminPanel.style.width = '300px';
-                          adminPanel.style.boxShadow = '0 2px 10px rgba(0,0,0,0.5)';
-                          adminPanel.style.zIndex = '999';
-                          adminPanel.style.display = 'none';
-
-                          adminPanel.innerHTML = `
-        <div style="text-align:center;margin-bottom:15px;font-weight:bold;color:#e74c3c;">
-          ADMIN PANEL - RESTRICTED ACCESS
-        </div>
-        <div style="display:flex;flex-direction:column;gap:10px;">
-          <button id="diagnosticsBtn" style="background:#3498db;border:none;color:white;padding:8px;border-radius:4px;cursor:pointer;">
-            Run Diagnostics
-          </button>
-          <button id="clearDataBtn" style="background:#e74c3c;border:none;color:white;padding:8px;border-radius:4px;cursor:pointer;">
-            Clear All Data
-          </button>
-          <button id="exportDataBtn" style="background:#27ae60;border:none;color:white;padding:8px;border-radius:4px;cursor:pointer;">
-            Export Data
-          </button>
-          <button id="closeAdminBtn" style="background:#7f8c8d;border:none;color:white;padding:8px;border-radius:4px;cursor:pointer;margin-top:10px;">
             Close
           </button>
         </div>
