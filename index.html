@@ -173,6 +173,15 @@
       </div>
       <div class="label">Medications</div>
     </div>
+    <!-- Weight Card -->
+    <div class="card" onclick="openSection('weightSection')">
+      <div class="icon"><i class="fas fa-weight" style="color:#1abc9c;"></i></div>
+      <div class="chart-container">
+        <canvas id="weightChart"></canvas>
+        <div class="chart-label" id="weightChartLabel">-</div>
+      </div>
+      <div class="label">Weight</div>
+    </div>
     <!-- Bowel Movements Card -->
     <div class="card" onclick="openSection('bmSection')">
       <div class="icon"><i class="fas fa-poo" style="color:#27ae60;"></i></div>
@@ -223,7 +232,7 @@
       <div class="icon"><i class="fas fa-brain" style="color:#2ecc71;"></i></div>
       <div class="chart-container">
         <canvas id="mentalChart"></canvas>
-        <div class="chart-label" id="mentalChartLabel">0/1</div>
+        <div class="chart-label" id="mentalChartLabel">0/2</div>
       </div>
       <div class="label">Mental/Physical</div>
     </div>
@@ -268,10 +277,42 @@
     <button class="save-btn" onclick="saveSection('medications')">Done</button>
   </div>
 
+  <!-- SECTION: Weight -->
+  <div id="weightSection" class="section">
+    <button class="btn-back" onclick="closeSection()">← Back to Dashboard</button>
+    <h2>Daily Weight Tracking</h2>
+    <div style="background:#2c2c2c;padding:10px;border-radius:4px;margin-bottom:15px;font-size:14px;">
+      For best results, weigh yourself in the morning after using the bathroom and before eating or drinking.
+    </div>
+    <div class="input-group">
+      <label>Today's Weight:</label>
+      <input type="number" id="weightInput" step="0.1" min="50" max="500" placeholder="Enter weight (lbs)">
+    </div>
+    <div class="input-group">
+      <label>Notes (optional):</label>
+      <select id="weightNotes">
+        <option value="">Select or leave blank</option>
+        <option>Morning weight</option>
+        <option>Evening weight</option>
+        <option>After exercise</option>
+        <option>After eating</option>
+        <option>Before eating</option>
+        <option>Feeling bloated</option>
+        <option>Feeling dehydrated</option>
+        <option>Different scale used</option>
+        <option>Clothing on</option>
+      </select>
+    </div>
+    <button class="save-btn" onclick="saveSection('weight')">Submit</button>
+  </div>
+
   <!-- SECTION: Bowel Movements -->
   <div id="bmSection" class="section">
     <button class="btn-back" onclick="closeSection()">← Back to Dashboard</button>
     <h2>Bowel Movement Reporting</h2>
+    <div style="background:#2c2c2c;padding:10px;border-radius:4px;margin-bottom:15px;font-size:14px;">
+      Target: 2–3 soft stools per day (Lactulose dose should be adjusted to achieve this)
+    </div>
     <div class="input-group">
       <label>I had a stool that was:</label>
       <select id="bmSelect">
@@ -315,6 +356,9 @@
   <div id="drinkSection" class="section">
     <button class="btn-back" onclick="closeSection()">← Back to Dashboard</button>
     <h2>Drink Intake Reporting</h2>
+    <div style="background:#2c2c2c;padding:10px;border-radius:4px;margin-bottom:15px;font-size:14px;">
+      Target: 1.5–2 liters of water daily (about 6-8 cups)
+    </div>
     <div class="input-group">
       <label>I drank:</label>
       <select id="drinkAmount">
@@ -342,6 +386,10 @@
   <div id="mealsSection" class="section">
     <button class="btn-back" onclick="closeSection()">← Back to Dashboard</button>
     <h2>Meals & Nutrition Reporting</h2>
+    <div style="background:#2c2c2c;padding:10px;border-radius:4px;margin-bottom:15px;font-size:14px;">
+      Protein Goal: 1.0–1.5 g/kg/day (include in every meal)<br>
+      Salt Restriction: Less than 2 grams/day
+    </div>
     <div class="input-group">
       <label>I ate:</label>
       <select id="mealDetails">
@@ -368,18 +416,6 @@
       </select>
     </div>
     <div class="input-group">
-      <label>Meal Type:</label>
-      <select id="mealType">
-        <option value="">Select type</option>
-        <option>Breakfast</option>
-        <option>Morning Snack</option>
-        <option>Lunch</option>
-        <option>Afternoon Snack</option>
-        <option>Dinner</option>
-        <option>Bedtime Snack</option>
-      </select>
-    </div>
-    <div class="input-group">
       <label>Protein Amount:</label>
       <select id="proteinAmount">
         <option value="">Select amount</option>
@@ -393,6 +429,16 @@
       </select>
     </div>
     <div class="input-group">
+      <label>Salt Intake:</label>
+      <select id="saltIntake">
+        <option value="">Select level</option>
+        <option>No added salt</option>
+        <option>Low sodium</option>
+        <option>Moderate sodium</option>
+        <option>High sodium</option>
+      </select>
+      </div>
+      <div class="input-group">
       <label>Appetite:</label>
       <select id="appetite">
         <option value="">Select</option>
@@ -477,6 +523,9 @@
   <div id="mentalSection" class="section">
     <button class="btn-back" onclick="closeSection()">← Back to Dashboard</button>
     <h2>Mental &amp; Physical Tests</h2>
+    <div style="background:#2c2c2c;padding:10px;border-radius:4px;margin-bottom:15px;font-size:14px;">
+      Complete at least 2 tests below to mark this section as complete.
+    </div>
     <div class="input-group">
       <label>Alert &amp; Oriented?</label><br>
       <input type="radio" name="alertStatus" value="Yes"> Yes
@@ -606,26 +655,151 @@
        Daily Persistence & Midnight Refresh
        ------------------------- */
     const todayKey = new Date().toISOString().slice(0,10);
-    if (localStorage.getItem('savedDate') !== todayKey) {
-      localStorage.clear();
-      localStorage.setItem('savedDate', todayKey);
+
+  // Check if we need to archive yesterday's data and reset for today
+  function checkDayChange() {
+    const savedDate = localStorage.getItem('savedDate');
+    const currentDate = new Date().toISOString().slice(0, 10);
+
+    if (savedDate && savedDate !== currentDate) {
+      console.log(`Day changed from ${savedDate} to ${currentDate}. Archiving data...`);
+
+      // Archive yesterday's data
+      archiveData(savedDate);
+
+      // Clear current data
+      resetDailyData();
+
+      // Set the new date
+      localStorage.setItem('savedDate', currentDate);
+    } else if (!savedDate) {
+      // First time visit, just set the date
+      localStorage.setItem('savedDate', currentDate);
     }
+  }
+
+  // Create archive of the day's data
+  function archiveData(dateString) {
+    try {
+      // Create the archive structure if it doesn't exist
+      const archiveData = JSON.parse(localStorage.getItem('healthArchive') || '{}');
+
+      // Save each data category
+      const dailyArchive = {
+        medications: JSON.parse(localStorage.getItem('medicationRecords') || '[]'),
+        weight: JSON.parse(localStorage.getItem('weightRecord') || '{}'),
+        bowelMovement: JSON.parse(localStorage.getItem('bmRecord') || '{}'),
+        drinkIntake: JSON.parse(localStorage.getItem('drinkRecord') || '{}'),
+        meals: JSON.parse(localStorage.getItem('mealsRecord') || '{}'),
+        protein: PROTEIN_GOAL,
+        saltRestriction: SALT_GOAL,
+        sleep: JSON.parse(localStorage.getItem('sleepRecord') || '{}'),
+        activity: JSON.parse(localStorage.getItem('activityRecord') || '{}'),
+        mental: JSON.parse(localStorage.getItem('mentalRecord') || '{}'),
+        symptoms: JSON.parse(localStorage.getItem('physicalSymptoms') || '[]'),
+        notes: localStorage.getItem('notesRecord') || ''
+      };
+
+      // Add this day's data to the archive
+      archiveData[dateString] = dailyArchive;
+
+      // Save the updated archive back to localStorage
+      localStorage.setItem('healthArchive', JSON.stringify(archiveData));
+
+      // Optional: Try to sync this archived data to Google Sheets if enabled
+      if (!CONFIG.localModeOnly && CONFIG.enableGoogleSheets) {
+        postDataToSheet('daily_archive', {
+          date: dateString,
+          data: dailyArchive
+        }).catch(err => {
+          console.error('Failed to sync archived data to Google Sheets:', err);
+        });
+      }
+
+      console.log(`Successfully archived data for ${dateString}`);
+    } catch (error) {
+      console.error('Error archiving data:', error);
+    }
+  }
+
+  // Reset all daily tracking data
+  function resetDailyData() {
+    // Clear all the daily records but keep the archive and settings
+    const keysToKeep = ['healthArchive', 'savedDate'];
+
+    // Save config settings temporarily
+    const savedConfig = {
+      localModeOnly: CONFIG.localModeOnly,
+      googleSheetsApiUrl: CONFIG.googleSheetsApiUrl
+    };
+
+    // Get all keys in localStorage
+    for (let i = 0; i < localStorage.length; i++) {
+      const key = localStorage.key(i);
+      if (key && !keysToKeep.includes(key)) {
+        localStorage.removeItem(key);
+      }
+    }
+
+    // Restore settings
+    if (savedConfig.googleSheetsApiUrl) {
+      CONFIG.googleSheetsApiUrl = savedConfig.googleSheetsApiUrl;
+      CONFIG.localModeOnly = savedConfig.localModeOnly;
+    }
+
+    // Reset all the runtime variables
+    medicationRecords = [];
+    weightRecord = {};
+    bmRecord = {};
+    drinkRecord = {};
+    mealsRecord = {};
+    sleepRecord = {};
+    activityRecord = {};
+    mentalRecord = {};
+    physicalSymptoms = [];
+    notesRecord = "";
+
+    console.log('Daily data has been reset');
+    }
+
+  // Run the check when the page loads
+  checkDayChange();
+
+  // Schedule the midnight refresh
     function scheduleMidnightRefresh() {
       const now = new Date();
       const midnight = new Date(now.getFullYear(), now.getMonth(), now.getDate() + 1);
-      setTimeout(() => location.reload(), midnight - now + 1000);
+      const timeToMidnight = midnight - now;
+
+      console.log(`Scheduling midnight refresh in ${Math.round(timeToMidnight / 1000 / 60)} minutes`);
+
+      setTimeout(() => {
+        // Archive today's data with today's date
+        archiveData(todayKey);
+
+        // Reset the data for the new day
+        resetDailyData();
+
+        // Update the saved date
+        localStorage.setItem('savedDate', new Date().toISOString().slice(0, 10));
+
+        // Reload the page to refresh everything
+        location.reload();
+      }, timeToMidnight + 1000); // Add 1 second buffer after midnight
     }
+
     scheduleMidnightRefresh();
 
     /* -------------------------
        Daily Goals (from discharge and tracking standards)
        ------------------------- */
-    const BM_GOAL = 2;
-    const DRINK_GOAL = 10;
-    const MEALS_GOAL = 6;
-    const SLEEP_GOAL = 8;
-    const ACTIVITY_GOAL = 20;
-    // Mental/Physical and Physical Symptoms are binary; 1 means complete.
+                      const BM_GOAL = 3;  // Goal is 2-3 soft stools per day per Lactulose instructions
+                      const DRINK_GOAL = 8;  // Changed to represent 1.5-2 liters (about 8 cups)
+                      const MEALS_GOAL = 3;  // Three main meals per day
+                      const PROTEIN_GOAL = true;  // Need to track protein intake at 1.0-1.5 g/kg/day
+                      const SALT_GOAL = true;  // Need to track low sodium diet (<2g/day)
+                      const SLEEP_GOAL = 8;  // Standard sleep goal
+                      const ACTIVITY_GOAL = 20; // Daily light activity goal
 
     /* -------------------------
        Data Structures & Persistence
@@ -635,15 +809,20 @@
     const medications = [
       { name: "Lactulose (30 mL)", schedule: { Morning: false, Noon: false, Evening: false, Bedtime: false } },
       { name: "Rifaximin (550 mg)", schedule: { Morning: true, Noon: false, Evening: true, Bedtime: false } },
-      { name: "Ursodiol (300 mg)", schedule: { Morning: true, Noon: false, Evening: true, Bedtime: false } },
+      { name: "Ursodiol (300 mg x2)", schedule: { Morning: true, Noon: false, Evening: true, Bedtime: false } },
       { name: "Ferrous Gluconate (324 mg)", schedule: { Morning: true, Noon: false, Evening: false, Bedtime: false } },
       { name: "Levothyroxine (25 mcg)", schedule: { Morning: true, Noon: false, Evening: false, Bedtime: false } },
       { name: "Losartan (50 mg)", schedule: { Morning: true, Noon: false, Evening: false, Bedtime: false } },
       { name: "Cholestyramine (4g)", schedule: { Morning: true, Noon: false, Evening: true, Bedtime: false } },
-      { name: "Hydroxyzine (25 mg as needed)", schedule: { Morning: false, Noon: false, Evening: false, Bedtime: false } }
+      { name: "Hydroxyzine (25 mg as needed)", schedule: { Morning: false, Noon: false, Evening: false, Bedtime: false } },
+      { name: "Calcium (1200 mg)", schedule: { Morning: true, Noon: false, Evening: false, Bedtime: false } },
+      { name: "Vitamin D (≥1000 IU)", schedule: { Morning: true, Noon: false, Evening: false, Bedtime: false } }
     ];
     let medicationRecords = JSON.parse(localStorage.getItem('medicationRecords')) || [];
     
+                            // New weight record
+                            let weightRecord = JSON.parse(localStorage.getItem('weightRecord')) || {};
+                          
     // Handle bowel movement record - could be string or object based on app version
     let bmRecord = {};
     try {
@@ -803,9 +982,10 @@
     /* -------------------------
        Chart Initialization & Update
        ------------------------- */
-    let medChart, bmChart, drinkChart, mealsChart, sleepChart, activityChart, mentalChart, notesChart, symptomChart;
+                        let medChart, bmChart, drinkChart, mealsChart, sleepChart, activityChart, mentalChart, notesChart, symptomChart, weightChart;
     function initCharts() {
       medChart = createChart(document.getElementById('medChart').getContext('2d'), '#e74c3c');
+      weightChart = createChart(document.getElementById('weightChart').getContext('2d'), '#1abc9c');
       bmChart = createChart(document.getElementById('bmChart').getContext('2d'), '#27ae60');
       drinkChart = createChart(document.getElementById('drinkChart').getContext('2d'), '#3498db');
       mealsChart = createChart(document.getElementById('mealsChart').getContext('2d'), '#f1c40f');
@@ -852,6 +1032,11 @@
       updateChartData(medChart, medPerc);
       document.getElementById('medChartLabel').innerHTML = `<i class="fas fa-pills"></i><br>${medPerc}%`;
       
+      // Weight: binary goal (recorded or not)
+      const weightPerc = weightRecord.weight ? 100 : 0;
+      updateChartData(weightChart, weightPerc);
+      document.getElementById('weightChartLabel').textContent = weightRecord.weight ? `${weightRecord.weight}` : "-";
+      
       // Bowel Movements: target = BM_GOAL
       const bmCount = typeof bmRecord === 'object' && bmRecord.type ? 1 : 0;
       const bmPerc = bmCount ? Math.round((bmCount / BM_GOAL) * 100) : 0;
@@ -880,10 +1065,25 @@
       updateChartData(activityChart, actPerc);
       document.getElementById('activityChartLabel').textContent = actVal ? `${actVal}m` : "0m";
       
-      // Mental/Physical: binary goal (1/1)
-      const mentalPerc = mentalRecord.alertStatus ? 100 : 0;
+      // Mental/Physical: binary goal (now requires at least 2 test parts)
+      let mentalTestsCompleted = 0;
+
+      // Count alertStatus test
+      if (mentalRecord.alertStatus) mentalTestsCompleted++;
+
+      // Count tremor test (if any checkbox is checked)
+      if (mentalRecord.tremor && mentalRecord.tremor.length > 0) mentalTestsCompleted++;
+
+      // Count memory test (if any checkbox is checked)
+      if (mentalRecord.memory && mentalRecord.memory.length > 0) mentalTestsCompleted++;
+
+      // Count neuro test (if any checkbox is checked)
+      if (mentalRecord.neuro && mentalRecord.neuro.length > 0) mentalTestsCompleted++;
+
+      // Mark as complete if at least 2 tests were done
+      const mentalPerc = mentalTestsCompleted >= 2 ? 100 : 0;
       updateChartData(mentalChart, mentalPerc);
-      document.getElementById('mentalChartLabel').textContent = mentalRecord.alertStatus ? "1/1" : "0/1";
+      document.getElementById('mentalChartLabel').textContent = mentalPerc === 100 ? "2/2" : `${mentalTestsCompleted}/2`;
       
       // Physical Symptoms: binary goal (at least one symptom reported)
       const symptomPerc = physicalSymptoms.length > 0 ? 100 : 0;
@@ -899,8 +1099,9 @@
       // Weight each category based on importance and calculate overall percentage
       const categories = [
         { name: "Medications", percentage: medPerc, weight: 25 },
+        { name: "Weight", percentage: weightPerc, weight: 5 },
         { name: "Bowel Movements", percentage: bmPerc, weight: 15 },
-        { name: "Drink Intake", percentage: drinkPerc, weight: 15 },
+        { name: "Drink Intake", percentage: drinkPerc, weight: 10 },
         { name: "Meals", percentage: mealsPerc, weight: 15 },
         { name: "Sleep", percentage: sleepPerc, weight: 10 },
         { name: "Activity", percentage: actPerc, weight: 10 },
@@ -1349,6 +1550,21 @@
             payload = { records: medicationRecords };
             localStorage.setItem('medicationRecords', JSON.stringify(medicationRecords));
             break;
+          case 'weight':
+            const weightValue = document.getElementById('weightInput').value;
+            if (!weightValue || isNaN(parseFloat(weightValue))) {
+              alert("Please enter a valid weight");
+              return;
+            }
+
+            weightRecord = {
+              weight: parseFloat(weightValue).toFixed(1),
+              notes: document.getElementById('weightNotes').value,
+              timestamp: new Date().toLocaleTimeString()
+            };
+            payload = weightRecord;
+            localStorage.setItem('weightRecord', JSON.stringify(weightRecord));
+            break;
           case 'bowelMovements':
             bmRecord = {
               type: document.getElementById('bmSelect').value,
@@ -1367,8 +1583,8 @@
             break;
           case 'meals':
             mealsRecord.details = document.getElementById('mealDetails').value;
-            mealsRecord.type = document.getElementById('mealType').value;
             mealsRecord.protein = document.getElementById('proteinAmount').value;
+            mealsRecord.salt = document.getElementById('saltIntake').value;
             mealsRecord.appetite = document.getElementById('appetite').value;
             payload = mealsRecord;
             localStorage.setItem('mealsRecord', JSON.stringify(mealsRecord));
