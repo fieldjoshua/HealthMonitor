@@ -1,0 +1,1498 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Modern Dark Health Monitoring Dashboard</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <!-- FontAwesome for icons -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" crossorigin="anonymous" referrerpolicy="no-referrer" />
+  <!-- Chart.js for doughnut graphs -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <style>
+    /* Dark theme, modern design, optimized for smartphones */
+    body {
+      font-family: 'Segoe UI', sans-serif;
+      background: #121212;
+      color: #e0e0e0;
+      margin: 0;
+      padding: 20px;
+    }
+    h1 {
+      text-align: center;
+      margin-bottom: 20px;
+      color: #e0e0e0;
+    }
+    /* Dashboard Container */
+    #dashboard {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      gap: 20px;
+    }
+    .card {
+      background: #1e1e1e;
+      width: 160px;
+      border-radius: 8px;
+      padding: 15px;
+      text-align: center;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.6);
+      cursor: pointer;
+      position: relative;
+      transition: transform 0.2s;
+    }
+    .card:hover { transform: scale(1.05); }
+    .card .icon { font-size: 36px; margin-bottom: 10px; }
+    .chart-container {
+      position: relative;
+      width: 80px;
+      height: 80px;
+      margin: 0 auto;
+    }
+    .chart-container canvas {
+      width: 80px !important;
+      height: 80px !important;
+      display: block;
+    }
+    .chart-label {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      font-size: 16px;
+      font-weight: bold;
+      z-index: 10;
+      pointer-events: none;
+    }
+    .label {
+      margin-top: 8px;
+      font-size: 14px;
+      font-weight: 500;
+    }
+    /* Section styling */
+    .section {
+      display: none;
+      margin-top: 20px;
+      background: #1e1e1e;
+      padding: 20px;
+      border-radius: 8px;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.6);
+    }
+    .section.active { display: block; }
+    .btn-back {
+      background: #e74c3c;
+      border: none;
+      color: #fff;
+      padding: 8px 12px;
+      border-radius: 4px;
+      cursor: pointer;
+      margin-bottom: 15px;
+    }
+    /* Table and input styling for reporting sections */
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-bottom: 15px;
+    }
+    th, td {
+      padding: 8px;
+      border: 1px solid #333;
+      text-align: center;
+      vertical-align: middle;
+    }
+    th { background: #2c2c2c; }
+    .timestamp {
+      display: block;
+      font-size: 0.8em;
+      color: #aaa;
+      margin-top: 5px;
+    }
+    select, input[type="text"], input[type="time"], input[type="number"], textarea {
+      width: 100%;
+      padding: 8px;
+      border: 1px solid #555;
+      border-radius: 4px;
+      box-sizing: border-box;
+      font-size: 14px;
+      background: #2c2c2c;
+      color: #e0e0e0;
+    }
+    .input-group { margin-bottom: 15px; }
+    .input-group label { display: block; font-weight: bold; margin-bottom: 5px; }
+    button.save-btn {
+      background: #007bff;
+      border: none;
+      border-radius: 4px;
+      padding: 8px 12px;
+      cursor: pointer;
+      margin-top: 10px;
+      color: #fff;
+    }
+    button.save-btn:hover { background: #0056b3; }
+    /* Responsive settings for smartphones */
+    @media (max-width: 600px) {
+      body { padding: 10px; }
+      .card { width: 140px; padding: 10px; }
+      .chart-container { width: 60px; height: 60px; }
+      .chart-label { font-size: 14px; }
+      .label { font-size: 12px; }
+    }
+  </style>
+</head>
+<body>
+  <h1>Health Monitoring Dashboard</h1>
+  <!-- MAIN DASHBOARD -->
+  <div id="dashboard">
+    <!-- Connection Status will be inserted here by JS -->
+    <div id="connectionStatusBar" style="width:100%;padding:5px;margin-bottom:15px;text-align:center;background:#e67e22;border-radius:4px;display:flex;justify-content:space-between;align-items:center;">
+      <span>📱 Using Local Storage Mode</span>
+      <button id="toggleSyncMode" style="background:#555;border:none;color:white;padding:3px 8px;border-radius:4px;cursor:pointer;font-size:12px;">
+        Enable Google Sheets
+      </button>
+    </div>
+    
+    <!-- Medication Card -->
+    <div class="card" onclick="openSection('medSection')">
+      <div class="icon"><i class="fas fa-pills" style="color:#e74c3c;"></i></div>
+      <div class="chart-container">
+        <canvas id="medChart"></canvas>
+        <div class="chart-label" id="medChartLabel"><i class="fas fa-check-circle"></i></div>
+      </div>
+      <div class="label">Medications</div>
+    </div>
+    <!-- Bowel Movements Card -->
+    <div class="card" onclick="openSection('bmSection')">
+      <div class="icon"><i class="fas fa-poo" style="color:#27ae60;"></i></div>
+      <div class="chart-container">
+        <canvas id="bmChart"></canvas>
+        <div class="chart-label" id="bmChartLabel">0/3</div>
+      </div>
+      <div class="label">Bowel Movements</div>
+    </div>
+    <!-- Drink Intake Card -->
+    <div class="card" onclick="openSection('drinkSection')">
+      <div class="icon"><i class="fas fa-tint" style="color:#3498db;"></i></div>
+      <div class="chart-container">
+        <canvas id="drinkChart"></canvas>
+        <div class="chart-label" id="drinkChartLabel">0/8</div>
+      </div>
+      <div class="label">Drink Intake</div>
+    </div>
+    <!-- Meals & Nutrition Card -->
+    <div class="card" onclick="openSection('mealsSection')">
+      <div class="icon"><i class="fas fa-utensils" style="color:#f1c40f;"></i></div>
+      <div class="chart-container">
+        <canvas id="mealsChart"></canvas>
+        <div class="chart-label" id="mealsChartLabel">0/5</div>
+      </div>
+      <div class="label">Meals</div>
+    </div>
+    <!-- Sleep Card -->
+    <div class="card" onclick="openSection('sleepSection')">
+      <div class="icon"><i class="fas fa-bed" style="color:#8e44ad;"></i></div>
+      <div class="chart-container">
+        <canvas id="sleepChart"></canvas>
+        <div class="chart-label" id="sleepChartLabel">0h</div>
+      </div>
+      <div class="label">Sleep</div>
+    </div>
+    <!-- Activity Card -->
+    <div class="card" onclick="openSection('activitySection')">
+      <div class="icon"><i class="fas fa-running" style="color:#e67e22;"></i></div>
+      <div class="chart-container">
+        <canvas id="activityChart"></canvas>
+        <div class="chart-label" id="activityChartLabel">0m</div>
+      </div>
+      <div class="label">Activity</div>
+    </div>
+    <!-- Mental/Physical Tests Card -->
+    <div class="card" onclick="openSection('mentalSection')">
+      <div class="icon"><i class="fas fa-brain" style="color:#2ecc71;"></i></div>
+      <div class="chart-container">
+        <canvas id="mentalChart"></canvas>
+        <div class="chart-label" id="mentalChartLabel">0/1</div>
+      </div>
+      <div class="label">Mental/Physical</div>
+    </div>
+    <!-- Physical Symptoms Card -->
+    <div class="card" onclick="openSection('symptomSection')">
+      <div class="icon"><i class="fas fa-stethoscope" style="color:#f39c12;"></i></div>
+      <div class="chart-container">
+        <canvas id="symptomChart"></canvas>
+        <div class="chart-label" id="symptomChartLabel">0/1</div>
+      </div>
+      <div class="label">Symptoms</div>
+    </div>
+    <!-- Notes Card -->
+    <div class="card" onclick="openSection('notesSection')">
+      <div class="icon"><i class="fas fa-sticky-note" style="color:#34495e;"></i></div>
+      <div class="chart-container">
+        <canvas id="notesChart"></canvas>
+        <div class="chart-label" id="notesChartLabel"><i class="fas fa-comment"></i></div>
+      </div>
+      <div class="label">Notes</div>
+    </div>
+  </div>
+
+  <!-- SECTION: Medications -->
+  <div id="medSection" class="section">
+    <button class="btn-back" onclick="closeSection()">← Back to Dashboard</button>
+    <h2>Today's Medications</h2>
+    <table>
+      <thead>
+        <tr>
+          <th>Medication</th>
+          <th>Morning<br>(6-9 AM)</th>
+          <th>Noon<br>(11-1 PM)</th>
+          <th>Evening<br>(5-8 PM)</th>
+          <th>Bedtime<br>(9-11 PM)</th>
+        </tr>
+      </thead>
+      <tbody id="medTableBody">
+        <!-- Rows generated dynamically -->
+      </tbody>
+    </table>
+    <button class="save-btn" onclick="saveSection('medications')">Done</button>
+  </div>
+
+  <!-- SECTION: Bowel Movements -->
+  <div id="bmSection" class="section">
+    <button class="btn-back" onclick="closeSection()">← Back to Dashboard</button>
+    <h2>Bowel Movement Reporting</h2>
+    <div class="input-group">
+      <label>I had a stool that was:</label>
+      <select id="bmSelect">
+        <option value="">Select type</option>
+        <option>Hard</option>
+        <option>Normal</option>
+        <option>Soft</option>
+        <option>Watery</option>
+      </select>
+    </div>
+    <div class="input-group">
+      <label>Stool color:</label>
+      <select id="bmColor">
+        <option value="">Select color</option>
+        <option>Brown (normal)</option>
+        <option>Pale/Clay colored</option>
+        <option>Dark/Black</option>
+        <option>Bloody/Red</option>
+      </select>
+    </div>
+    <div class="input-group">
+      <label>Additional notes:</label>
+      <input type="text" id="bmNotes" placeholder="Any other observations">
+    </div>
+    <button class="save-btn" onclick="saveSection('bowelMovements')">Submit</button>
+  </div>
+
+  <!-- SECTION: Drink Intake -->
+  <div id="drinkSection" class="section">
+    <button class="btn-back" onclick="closeSection()">← Back to Dashboard</button>
+    <h2>Drink Intake Reporting</h2>
+    <div class="input-group">
+      <label>I drank:</label>
+      <select id="drinkAmount">
+        <option value="">Select amount</option>
+        <option>1 cup</option>
+        <option>2 cups</option>
+        <option>3 cups</option>
+        <option>4 cups</option>
+      </select>
+    </div>
+    <div class="input-group">
+      <label>of:</label>
+      <select id="drinkType">
+        <option value="">Select type</option>
+        <option>Water</option>
+        <option>Juice</option>
+        <option>Electrolytes</option>
+        <option>Other</option>
+      </select>
+    </div>
+    <button class="save-btn" onclick="saveSection('drinkIntake')">Submit</button>
+  </div>
+
+  <!-- SECTION: Meals & Nutrition -->
+  <div id="mealsSection" class="section">
+    <button class="btn-back" onclick="closeSection()">← Back to Dashboard</button>
+    <h2>Meals & Nutrition Reporting</h2>
+    <div class="input-group">
+      <label>I ate:</label>
+      <input type="text" id="mealDetails" placeholder="Describe your meal">
+    </div>
+    <div class="input-group">
+      <label>Meal Type:</label>
+      <select id="mealType">
+        <option value="">Select type</option>
+        <option>Breakfast</option>
+        <option>Morning Snack</option>
+        <option>Lunch</option>
+        <option>Afternoon Snack</option>
+        <option>Dinner</option>
+        <option>Bedtime Snack</option>
+      </select>
+    </div>
+    <div class="input-group">
+      <label>Protein Amount (g):</label>
+      <input type="number" id="proteinAmount" placeholder="e.g., 20">
+    </div>
+    <div class="input-group">
+      <label>Appetite:</label>
+      <select id="appetite">
+        <option value="">Select</option>
+        <option>Poor</option>
+        <option>Fair</option>
+        <option>Good</option>
+      </select>
+    </div>
+    <button class="save-btn" onclick="saveSection('meals')">Submit</button>
+  </div>
+
+  <!-- SECTION: Sleep -->
+  <div id="sleepSection" class="section">
+    <button class="btn-back" onclick="closeSection()">← Back to Dashboard</button>
+    <h2>Sleep Reporting</h2>
+    <div class="input-group">
+      <label>I slept (hours):</label>
+      <input type="number" id="sleepHours" placeholder="e.g., 7">
+    </div>
+    <div class="input-group">
+      <label>Sleep Quality:</label>
+      <select id="sleepQuality">
+        <option value="">Select quality</option>
+        <option>Poor</option>
+        <option>Fair</option>
+        <option>Good</option>
+      </select>
+    </div>
+    <button class="save-btn" onclick="saveSection('sleep')">Submit</button>
+  </div>
+
+  <!-- SECTION: Activity -->
+  <div id="activitySection" class="section">
+    <button class="btn-back" onclick="closeSection()">← Back to Dashboard</button>
+    <h2>Activity Reporting</h2>
+    <div class="input-group">
+      <label>I was active for (minutes):</label>
+      <input type="number" id="activityMinutes" placeholder="e.g., 30">
+    </div>
+    <div class="input-group">
+      <label>Activity Type:</label>
+      <select id="activityType">
+        <option value="">Select activity</option>
+        <option>Walking</option>
+        <option>Running</option>
+        <option>Cycling</option>
+        <option>Other</option>
+      </select>
+    </div>
+    <button class="save-btn" onclick="saveSection('activity')">Submit</button>
+  </div>
+
+  <!-- SECTION: Mental/Physical Tests -->
+  <div id="mentalSection" class="section">
+    <button class="btn-back" onclick="closeSection()">← Back to Dashboard</button>
+    <h2>Mental &amp; Physical Tests</h2>
+    <div class="input-group">
+      <label>Alert &amp; Oriented?</label><br>
+      <input type="radio" name="alertStatus" value="Yes"> Yes
+      <input type="radio" name="alertStatus" value="No"> No
+    </div>
+    <div class="input-group">
+      <label>Hand Tremor Test:</label><br>
+      <input type="checkbox" name="tremor" value="no_tremor"> No tremor visible<br>
+      <input type="checkbox" name="tremor" value="slight_tremor"> Slight tremor at rest<br>
+      <input type="checkbox" name="tremor" value="arm_tremor"> Tremor when arms extended<br>
+      <input type="checkbox" name="tremor" value="asterixis"> Flapping (asterixis)<br>
+      <input type="checkbox" name="tremor" value="severe"> Unable to hold arms steady for 10 seconds
+    </div>
+    <div class="input-group">
+      <label>Memory Test:</label><br>
+      <input type="checkbox" name="memory" value="knows_date"> Knows today's date<br>
+      <input type="checkbox" name="memory" value="knows_location"> Knows where they are<br>
+      <input type="checkbox" name="memory" value="recall"> Can recall what they had for breakfast<br>
+      <input type="checkbox" name="memory" value="name_objects"> Can name 3 objects shown<br>
+      <input type="checkbox" name="memory" value="repeat_words"> Can repeat 3 words after 5 minutes<br>
+      <input type="checkbox" name="memory" value="follow_steps"> Can follow a 2-step instruction<br>
+      <input type="checkbox" name="memory" value="draw_clock"> Can draw a clock showing a specific time
+    </div>
+    <div class="input-group">
+      <label>Additional Neurological Signs:</label><br>
+      <input type="checkbox" name="neuro" value="slow_speech"> Slowed speech<br>
+      <input type="checkbox" name="neuro" value="irritability"> Irritability<br>
+      <input type="checkbox" name="neuro" value="reversed_sleep"> Reversed sleep-wake cycle<br>
+      <input type="checkbox" name="neuro" value="coordination"> Difficulty with coordination
+    </div>
+    <button class="save-btn" onclick="saveSection('mental')">Submit</button>
+  </div>
+
+  <!-- SECTION: Physical Symptoms -->
+  <div id="symptomSection" class="section">
+    <button class="btn-back" onclick="closeSection()">← Back to Dashboard</button>
+    <h2>Physical Symptoms Reporting</h2>
+    <div class="input-group">
+      <label>Symptom:</label>
+      <select id="symptomSelect">
+        <option value="">Select symptom</option>
+        <option>Itching</option>
+        <option>Nausea</option>
+        <option>Abdominal pain</option>
+        <option>Swelling (legs/abdomen)</option>
+        <option>Yellowing of skin/eyes</option>
+        <option>Fatigue</option>
+        <option>Loss of appetite</option>
+        <option>Dark urine</option>
+        <option>Confusion or disorientation</option>
+        <option>Bleeding/bruising easily</option>
+      </select>
+    </div>
+    <div class="input-group">
+      <label>Severity:</label>
+      <select id="severitySelect">
+        <option value="">Select severity</option>
+        <option>None</option>
+        <option>Mild</option>
+        <option>Moderate</option>
+        <option>Severe</option>
+      </select>
+    </div>
+    <div class="input-group">
+      <label>Notes (optional):</label>
+      <input type="text" id="symptomNotes" placeholder="Additional details">
+    </div>
+    <button class="save-btn" onclick="recordSymptom()">Record</button>
+    <!-- Display recorded symptoms -->
+    <h3>Today's Symptoms</h3>
+    <ul id="symptomList" style="list-style:none;padding:0;margin:0;"></ul>
+    <button class="save-btn" onclick="saveSection('symptoms')">Submit</button>
+  </div>
+
+  <!-- SECTION: Notes -->
+  <div id="notesSection" class="section">
+    <button class="btn-back" onclick="closeSection()">← Back to Dashboard</button>
+    <h2>Notes &amp; Additional Comments</h2>
+    <div class="input-group">
+      <textarea id="notesText" placeholder="Enter any observations, concerns, or questions..."></textarea>
+    </div>
+    <button class="save-btn" onclick="saveSection('notes')">Submit</button>
+  </div>
+
+  <script>
+    /* -------------------------
+       Chart.js Verification
+       ------------------------- */
+    // Check if Chart.js is loaded properly
+    function checkChartJsLoaded() {
+      if (typeof Chart === 'undefined') {
+        console.error("Chart.js is not loaded! Adding fallback...");
+        // Add a fallback loading of Chart.js if the CDN failed
+        const scriptTag = document.createElement('script');
+        scriptTag.src = 'https://cdn.jsdelivr.net/npm/chart.js@3.7.1/dist/chart.min.js';
+        scriptTag.onload = function() {
+          console.log("Chart.js fallback loaded successfully");
+          // Reinitialize charts once loaded
+          if (document.readyState === 'complete' || document.readyState === 'interactive') {
+            setTimeout(initCharts, 100);
+          }
+        };
+        document.head.appendChild(scriptTag);
+        return false;
+      }
+      console.log("Chart.js is loaded properly");
+      return true;
+    }
+    
+    /* -------------------------
+       Daily Persistence & Midnight Refresh
+       ------------------------- */
+    const todayKey = new Date().toISOString().slice(0,10);
+    if (localStorage.getItem('savedDate') !== todayKey) {
+      localStorage.clear();
+      localStorage.setItem('savedDate', todayKey);
+    }
+    function scheduleMidnightRefresh() {
+      const now = new Date();
+      const midnight = new Date(now.getFullYear(), now.getMonth(), now.getDate() + 1);
+      setTimeout(() => location.reload(), midnight - now + 1000);
+    }
+    scheduleMidnightRefresh();
+
+    /* -------------------------
+       Daily Goals (from discharge and tracking standards)
+       ------------------------- */
+    const BM_GOAL = 2;
+    const DRINK_GOAL = 10;
+    const MEALS_GOAL = 6;
+    const SLEEP_GOAL = 8;
+    const ACTIVITY_GOAL = 20;
+    // Mental/Physical and Physical Symptoms are binary; 1 means complete.
+
+    /* -------------------------
+       Data Structures & Persistence
+       ------------------------- */
+    // Medication schedule (reversed relative to reference):
+    // Lactulose and Hydroxyzine originally had administered in hospital so now they show dash (flag true).
+    const medications = [
+      { name: "Lactulose (30 mL)", schedule: { Morning: false, Noon: false, Evening: false, Bedtime: false } },
+      { name: "Rifaximin (550 mg)", schedule: { Morning: true, Noon: false, Evening: true, Bedtime: false } },
+      { name: "Ursodiol (300 mg)", schedule: { Morning: true, Noon: false, Evening: true, Bedtime: false } },
+      { name: "Ferrous Gluconate (324 mg)", schedule: { Morning: true, Noon: false, Evening: false, Bedtime: false } },
+      { name: "Levothyroxine (25 mcg)", schedule: { Morning: true, Noon: false, Evening: false, Bedtime: false } },
+      { name: "Losartan (50 mg)", schedule: { Morning: true, Noon: false, Evening: false, Bedtime: false } },
+      { name: "Cholestyramine (4g)", schedule: { Morning: true, Noon: false, Evening: true, Bedtime: false } },
+      { name: "Hydroxyzine (25 mg as needed)", schedule: { Morning: false, Noon: false, Evening: false, Bedtime: false } }
+    ];
+    let medicationRecords = JSON.parse(localStorage.getItem('medicationRecords')) || [];
+    
+    // Handle bowel movement record - could be string or object based on app version
+    let bmRecord = {};
+    try {
+      const storedBmRecord = localStorage.getItem('bmRecord');
+      if (storedBmRecord) {
+        // Try to parse as JSON first
+        try {
+          bmRecord = JSON.parse(storedBmRecord);
+        } catch (e) {
+          // If parsing fails, it's an old string format - convert to new format
+          console.log("Converting old bmRecord format to new format");
+          bmRecord = {
+            type: storedBmRecord, 
+            color: "Brown (normal)",
+            notes: "",
+            timestamp: new Date().toLocaleTimeString()
+          };
+          // Save in new format
+          localStorage.setItem('bmRecord', JSON.stringify(bmRecord));
+        }
+      }
+    } catch (e) {
+      console.error("Error handling bmRecord:", e);
+      bmRecord = {};
+    }
+    
+    let drinkRecord = JSON.parse(localStorage.getItem('drinkRecord')) || {};
+    let mealsRecord = JSON.parse(localStorage.getItem('mealsRecord')) || {};
+    let sleepRecord = JSON.parse(localStorage.getItem('sleepRecord')) || {};
+    let activityRecord = JSON.parse(localStorage.getItem('activityRecord')) || {};
+    let mentalRecord = JSON.parse(localStorage.getItem('mentalRecord')) || {};
+    let physicalSymptoms = JSON.parse(localStorage.getItem('physicalSymptoms')) || [];
+    let notesRecord = localStorage.getItem('notesRecord') || "";
+
+    /* -------------------------
+       Generate Medication Table
+       ------------------------- */
+    function generateMedTable() {
+      const tbody = document.getElementById('medTableBody');
+      tbody.innerHTML = '';
+      medications.forEach(med => {
+        let tr = document.createElement('tr');
+        let nameTd = document.createElement('td');
+        nameTd.textContent = med.name;
+        tr.appendChild(nameTd);
+        ["Morning", "Noon", "Evening", "Bedtime"].forEach(slot => {
+          let td = document.createElement('td');
+          // If schedule flag is false -> show checkbox; if true -> show dash.
+          if (!med.schedule[slot]) {
+            let cb = document.createElement('input');
+            cb.type = 'checkbox';
+            cb.setAttribute('data-med', med.name);
+            cb.setAttribute('data-slot', slot);
+            cb.setAttribute('data-time', getScheduledHour(slot));
+            cb.onchange = recordMedCheck;
+            const existing = medicationRecords.find(r => r.medName === med.name && r.timeSlot === slot);
+            if (existing) { cb.checked = true; }
+            td.appendChild(cb);
+            let span = document.createElement('span');
+            span.className = 'timestamp';
+            if (existing) { span.textContent = existing.timestamp; }
+            td.appendChild(span);
+          } else {
+            td.textContent = "—";
+          }
+          tr.appendChild(td);
+        });
+        tbody.appendChild(tr);
+      });
+    }
+    function getScheduledHour(slot) {
+      switch(slot) {
+        case "Morning": return 6;
+        case "Noon": return 11;
+        case "Evening": return 17;
+        case "Bedtime": return 21;
+        default: return 0;
+      }
+    }
+
+    /* -------------------------
+       Medication Logic
+       ------------------------- */
+    function recordMedCheck(event) {
+      try {
+        // Get the checkbox from the event
+        const checkbox = event ? event.target : this;
+        
+        if (!checkbox || typeof checkbox.getAttribute !== 'function') {
+          console.error("Invalid checkbox element:", checkbox);
+          return;
+        }
+        
+        const scheduledHour = parseInt(checkbox.getAttribute('data-time'), 10);
+        const nowHour = new Date().getHours();
+        if (nowHour < scheduledHour) {
+          checkbox.checked = false;
+          return;
+        }
+        const tsSpan = checkbox.parentElement.querySelector('.timestamp');
+        if (checkbox.checked) {
+          const timestamp = new Date().toLocaleTimeString();
+          tsSpan.textContent = timestamp;
+          medicationRecords.push({
+            medName: checkbox.getAttribute('data-med'),
+            timeSlot: checkbox.getAttribute('data-slot'),
+            timestamp
+          });
+        } else {
+          tsSpan.textContent = "";
+          medicationRecords = medicationRecords.filter(r =>
+            !(r.medName === checkbox.getAttribute('data-med') && r.timeSlot === checkbox.getAttribute('data-slot'))
+          );
+        }
+        localStorage.setItem('medicationRecords', JSON.stringify(medicationRecords));
+      } catch (error) {
+        console.error("Error in recordMedCheck:", error);
+      }
+    }
+
+    /* -------------------------
+       Physical Symptom Reporting
+       ------------------------- */
+    function recordSymptom() {
+      const symptom = document.getElementById('symptomSelect').value;
+      const severity = document.getElementById('severitySelect').value;
+      const notes = document.getElementById('symptomNotes').value;
+      if (!symptom || !severity) return;  // must select symptom and severity
+      const timestamp = new Date().toLocaleTimeString();
+      physicalSymptoms.push({ symptom, severity, notes, timestamp });
+      localStorage.setItem('physicalSymptoms', JSON.stringify(physicalSymptoms));
+      renderSymptoms();
+      // Reset fields
+      document.getElementById('symptomSelect').selectedIndex = 0;
+      document.getElementById('severitySelect').selectedIndex = 0;
+      document.getElementById('symptomNotes').value = "";
+    }
+    function renderSymptoms() {
+      const list = document.getElementById('symptomList');
+      list.innerHTML = "";
+      physicalSymptoms.forEach((item, index) => {
+        let li = document.createElement('li');
+        li.style.marginBottom = "5px";
+        li.style.padding = "5px";
+        li.style.border = "1px solid #333";
+        li.style.borderRadius = "4px";
+        li.innerHTML = `<strong>${item.symptom}</strong> (${item.severity}) @ ${item.timestamp} <em>${item.notes}</em> <button style="background:none;border:none;color:#e74c3c;cursor:pointer;" onclick="removeSymptom(${index})">&times;</button>`;
+        list.appendChild(li);
+      });
+    }
+    function removeSymptom(idx) {
+      physicalSymptoms.splice(idx, 1);
+      localStorage.setItem('physicalSymptoms', JSON.stringify(physicalSymptoms));
+      renderSymptoms();
+    }
+
+    /* -------------------------
+       Chart Initialization & Update
+       ------------------------- */
+    let medChart, bmChart, drinkChart, mealsChart, sleepChart, activityChart, mentalChart, notesChart, symptomChart;
+    function initCharts() {
+      medChart = createChart(document.getElementById('medChart').getContext('2d'), '#e74c3c');
+      bmChart = createChart(document.getElementById('bmChart').getContext('2d'), '#27ae60');
+      drinkChart = createChart(document.getElementById('drinkChart').getContext('2d'), '#3498db');
+      mealsChart = createChart(document.getElementById('mealsChart').getContext('2d'), '#f1c40f');
+      sleepChart = createChart(document.getElementById('sleepChart').getContext('2d'), '#8e44ad');
+      activityChart = createChart(document.getElementById('activityChart').getContext('2d'), '#e67e22');
+      mentalChart = createChart(document.getElementById('mentalChart').getContext('2d'), '#2ecc71');
+      notesChart = createChart(document.getElementById('notesChart').getContext('2d'), '#34495e');
+      symptomChart = createChart(document.getElementById('symptomChart').getContext('2d'), '#f39c12');
+      updateCharts();
+    }
+    function createChart(ctx, color) {
+      try {
+        if (!ctx) {
+          console.error("Canvas context is null or undefined for color:", color);
+          return null;
+        }
+        return new Chart(ctx, {
+          type: 'doughnut',
+          data: {
+            datasets: [{
+              data: [0, 100],
+              backgroundColor: [color, '#555'],
+              borderWidth: 0
+            }]
+          },
+          options: {
+            cutout: '70%',
+            responsive: false,
+            plugins: { tooltip: { enabled: false }, legend: { display: false } }
+          }
+        });
+      } catch (error) {
+        console.error("Error creating chart with color " + color + ":", error);
+        return null;
+      }
+    }
+    function updateCharts() {
+      // Medications: percentage = (# doses taken) / (total scheduled doses) * 100
+      const medGoal = medications.reduce((acc, med) => {
+        for (let slot in med.schedule) { if (!med.schedule[slot]) acc++; }
+        return acc;
+      }, 0);
+      const medPerc = medGoal ? Math.round((medicationRecords.length / medGoal) * 100) : 0;
+      updateChartData(medChart, medPerc);
+      document.getElementById('medChartLabel').innerHTML = `<i class="fas fa-pills"></i><br>${medPerc}%`;
+      
+      // Bowel Movements: target = BM_GOAL
+      const bmCount = typeof bmRecord === 'object' && bmRecord.type ? 1 : 0;
+      const bmPerc = bmCount ? Math.round((bmCount / BM_GOAL) * 100) : 0;
+      updateChartData(bmChart, bmPerc);
+      document.getElementById('bmChartLabel').textContent = bmCount ? `1/${BM_GOAL}` : `0/${BM_GOAL}`;
+      
+      // Drink Intake: target = DRINK_GOAL cups
+      const drinkPerc = drinkRecord.amount ? Math.round((1 / DRINK_GOAL) * 100) : 0;
+      updateChartData(drinkChart, drinkPerc);
+      document.getElementById('drinkChartLabel').textContent = drinkRecord.amount ? `1/${DRINK_GOAL}` : `0/${DRINK_GOAL}`;
+      
+      // Meals: target = MEALS_GOAL meals
+      const mealsPerc = mealsRecord.details ? Math.round((1 / MEALS_GOAL) * 100) : 0;
+      updateChartData(mealsChart, mealsPerc);
+      document.getElementById('mealsChartLabel').textContent = mealsRecord.details ? `1/${MEALS_GOAL}` : `0/${MEALS_GOAL}`;
+      
+      // Sleep: percentage = (hours / SLEEP_GOAL)*100, cap at 100
+      const sleepVal = sleepRecord.hours || 0;
+      const sleepPerc = Math.min(Math.round((sleepVal / SLEEP_GOAL) * 100), 100);
+      updateChartData(sleepChart, sleepPerc);
+      document.getElementById('sleepChartLabel').textContent = sleepVal ? `${sleepVal}h` : "0h";
+      
+      // Activity: percentage = (minutes / ACTIVITY_GOAL)*100, cap at 100
+      const actVal = activityRecord.minutes || 0;
+      const actPerc = Math.min(Math.round((actVal / ACTIVITY_GOAL) * 100), 100);
+      updateChartData(activityChart, actPerc);
+      document.getElementById('activityChartLabel').textContent = actVal ? `${actVal}m` : "0m";
+      
+      // Mental/Physical: binary goal (1/1)
+      const mentalPerc = mentalRecord.alertStatus ? 100 : 0;
+      updateChartData(mentalChart, mentalPerc);
+      document.getElementById('mentalChartLabel').textContent = mentalRecord.alertStatus ? "1/1" : "0/1";
+      
+      // Physical Symptoms: binary goal (at least one symptom reported)
+      const symptomPerc = physicalSymptoms.length > 0 ? 100 : 0;
+      updateChartData(symptomChart, symptomPerc);
+      document.getElementById('symptomChartLabel').textContent = physicalSymptoms.length > 0 ? "1/1" : "0/1";
+      
+      // Notes: binary goal
+      const notesPerc = notesRecord ? 100 : 0;
+      updateChartData(notesChart, notesPerc);
+      document.getElementById('notesChartLabel').innerHTML = notesRecord ? `<i class="fas fa-comment"></i>` : `<i class="fas fa-comment-slash"></i>`;
+    }
+    function updateChartData(chart, value) {
+      if (!chart) {
+        console.warn("Attempted to update null chart");
+        return;
+      }
+      try {
+        chart.data.datasets[0].data = [value, 100 - value];
+        chart.update();
+      } catch (error) {
+        console.error("Error updating chart:", error);
+      }
+    }
+
+    /* -------------------------
+       Navigation Functions
+       ------------------------- */
+    function openSection(sectionId) {
+      document.getElementById('dashboard').style.display = 'none';
+      document.querySelectorAll('.section').forEach(sec => sec.classList.remove('active'));
+      document.getElementById(sectionId).classList.add('active');
+      if (sectionId === 'medSection') { generateMedTable(); }
+      if (sectionId === 'symptomSection') { renderSymptoms(); }
+    }
+    function closeSection() {
+      document.querySelectorAll('.section').forEach(sec => sec.classList.remove('active'));
+      document.getElementById('dashboard').style.display = 'flex';
+      updateCharts();
+    }
+
+    /* -------------------------
+       Configuration
+       ------------------------- */
+    const CONFIG = {
+      googleSheetsApiUrl: "https://script.google.com/macros/s/AKfycby3aigOPxwySAt46XdYUyienta8oM6ZQVsM2qEi79nd9M2kOvr5mmi9F6R8d0SDSVUX/exec",
+      enableGoogleSheets: true,
+      localModeOnly: true, // Default to local mode for immediate functionality
+      debugMode: true
+    };
+
+    /* -------------------------
+       Sync Mode Toggle
+       ------------------------- */
+    function toggleSyncMode() {
+      CONFIG.localModeOnly = !CONFIG.localModeOnly;
+      
+      const statusBar = document.getElementById('connectionStatusBar');
+      const toggleBtn = document.getElementById('toggleSyncMode');
+      
+      if (CONFIG.localModeOnly) {
+        // Switch to local mode
+        statusBar.style.background = '#e67e22';
+        statusBar.querySelector('span').innerHTML = '📱 Using Local Storage Mode';
+        toggleBtn.textContent = 'Enable Google Sheets';
+        console.log("Switched to local storage only mode");
+      } else {
+        // Try to use Google Sheets
+        statusBar.style.background = '#3498db';
+        statusBar.querySelector('span').innerHTML = '⏳ Testing Google Sheets Connection...';
+        toggleBtn.textContent = 'Use Local Storage';
+        
+        // Test the connection
+        testGoogleSheetsConnection().then(result => {
+          if (result.result === "error" || result.result === "local_only") {
+            // If connection failed, switch back to local mode
+            CONFIG.localModeOnly = true;
+            statusBar.style.background = '#e74c3c';
+            statusBar.querySelector('span').innerHTML = '❌ Google Sheets Connection Failed';
+            toggleBtn.textContent = 'Try Again';
+            console.warn("Google Sheets connection failed. Using local mode.");
+          } else {
+            // Connection successful
+            statusBar.style.background = '#27ae60';
+            statusBar.querySelector('span').innerHTML = '✓ Google Sheets Connected';
+            console.log("Google Sheets connection successful");
+          }
+        });
+      }
+    }
+
+    /* -------------------------
+       Test Connection
+       ------------------------- */
+    async function testGoogleSheetsConnection() {
+      // Reference to the status bar that's already in the DOM
+      const statusBar = document.getElementById('connectionStatusBar');
+      const statusSpan = statusBar.querySelector('span');
+      const toggleBtn = document.getElementById('toggleSyncMode');
+
+      if (CONFIG.localModeOnly) {
+        console.log("Skipping connection test - using local mode only");
+        return { result: "local_only" };
+      }
+      
+      try {
+        console.log("Testing Google Sheets connection...");
+        console.log("Using URL:", CONFIG.googleSheetsApiUrl);
+        
+        const testData = {
+          section: "test",
+          payload: { test: "connection" }
+        };
+        
+        // First try a GET request which typically has fewer CORS issues
+        try {
+          const getResponse = await fetch(CONFIG.googleSheetsApiUrl);
+          console.log("Response status:", getResponse.status);
+          
+          if (getResponse.ok) {
+            const result = await getResponse.json();
+            console.log("Test response:", result);
+            
+            // Update status in existing UI
+            statusBar.style.background = '#27ae60';
+            statusSpan.innerHTML = '✓ Google Sheets Connected (GET works)';
+            
+            // Now try the POST request using the form approach
+            const postResult = await new Promise((resolve) => {
+              // Create a unique ID for this request
+              const requestId = 'req_test_' + Date.now();
+              
+              // Create a form to submit the data
+              const form = document.createElement('form');
+              form.method = 'POST';
+              form.action = CONFIG.googleSheetsApiUrl;
+              form.target = 'hidden_iframe_test_' + requestId;
+              form.style.display = 'none';
+              
+              // Add the data as a hidden input
+              const input = document.createElement('input');
+              input.type = 'hidden';
+              input.name = 'data';
+              input.value = JSON.stringify(testData);
+              form.appendChild(input);
+              
+              // Create a hidden iframe to receive the response
+              const iframe = document.createElement('iframe');
+              iframe.name = 'hidden_iframe_test_' + requestId;
+              iframe.id = 'hidden_iframe_test_' + requestId;
+              iframe.style.display = 'none';
+              
+              // Add elements to the DOM
+              document.body.appendChild(iframe);
+              document.body.appendChild(form);
+              
+              // Set a timeout to handle no response
+              const timeoutId = setTimeout(() => {
+                try {
+                  document.body.removeChild(form);
+                  document.body.removeChild(iframe);
+                } catch (e) {}
+                
+                // Update status
+                statusSpan.innerHTML = '✓ Google Sheets Connected (POST likely working)';
+                
+                resolve({ result: "success", message: "POST likely working" });
+              }, 5000);
+              
+              // Try to listen for iframe load
+              iframe.onload = () => {
+                clearTimeout(timeoutId);
+                try {
+                  document.body.removeChild(form);
+                  document.body.removeChild(iframe);
+                } catch (e) {}
+                
+                // Update status
+                statusSpan.innerHTML = '✓ Google Sheets Connected';
+                
+                resolve({ result: "success", message: "POST confirmed working" });
+              };
+              
+              // Submit the form
+              form.submit();
+            });
+            
+            return postResult;
+          } else {
+            throw new Error(`GET request failed with status: ${getResponse.status}`);
+          }
+        } catch (getError) {
+          console.error("GET request failed:", getError);
+          
+          // Check if this is a CORS error
+          const isCorsError = String(getError).includes('CORS') || 
+                             String(getError).includes('cross-origin') || 
+                             String(getError).includes('blocked by policy');
+          
+          if (isCorsError) {
+            CONFIG.localModeOnly = true;
+            
+            // Update status to indicate local mode due to CORS
+            statusBar.style.background = '#e67e22';
+            statusSpan.innerHTML = '⚠ CORS Error: Using Local Storage Only Mode';
+            toggleBtn.textContent = 'Try Again';
+              
+            return { result: "local_only", error: "CORS issues detected" };
+          }
+          
+          // Fall back to direct form-based POST test
+          statusBar.style.background = '#e67e22';
+          statusSpan.innerHTML = '⚠ GET Failed, Trying POST Method...';
+          
+          // Try POST via form
+          const postResult = await new Promise((resolve) => {
+            // Create a unique ID for this request
+            const requestId = 'req_test_' + Date.now();
+            
+            // Create a form to submit the data
+            const form = document.createElement('form');
+            form.method = 'POST';
+            form.action = CONFIG.googleSheetsApiUrl;
+            form.target = 'hidden_iframe_test_' + requestId;
+            form.style.display = 'none';
+            
+            // Add the data as a hidden input
+            const input = document.createElement('input');
+            input.type = 'hidden';
+            input.name = 'data';
+            input.value = JSON.stringify(testData);
+            form.appendChild(input);
+            
+            // Create a hidden iframe to receive the response
+            const iframe = document.createElement('iframe');
+            iframe.name = 'hidden_iframe_test_' + requestId;
+            iframe.id = 'hidden_iframe_test_' + requestId;
+            iframe.style.display = 'none';
+            
+            // Add elements to the DOM
+            document.body.appendChild(iframe);
+            document.body.appendChild(form);
+            
+            // Set a timeout to handle no response
+            const timeoutId = setTimeout(() => {
+              try {
+                document.body.removeChild(form);
+                document.body.removeChild(iframe);
+              } catch (e) {}
+              
+              // Update status
+              statusBar.style.background = '#e67e22';
+              statusSpan.innerHTML = '⚠ GET Failed, POST May Work';
+              
+              resolve({ result: "success", message: "POST likely working" });
+            }, 5000);
+            
+            // Try to listen for iframe load
+            iframe.onload = () => {
+              clearTimeout(timeoutId);
+              try {
+                document.body.removeChild(form);
+                document.body.removeChild(iframe);
+              } catch (e) {}
+              
+              // Update status
+              statusBar.style.background = '#27ae60';
+              statusSpan.innerHTML = '✓ POST Connection Successful';
+              
+              resolve({ result: "success", message: "POST confirmed working" });
+            };
+            
+            // Submit the form
+            form.submit();
+          });
+          
+          return postResult;
+        }
+      } catch (error) {
+        console.error("Connection test failed:", error);
+        
+        // Update status to show failure
+        statusBar.style.background = '#e74c3c';
+        statusSpan.innerHTML = '✗ Connection Failed: Using Local Storage Only';
+        CONFIG.localModeOnly = true;
+        
+        return { result: "error", error: error.toString() };
+      }
+    }
+
+    /* -------------------------
+       Google Sheets Integration
+       ------------------------- */
+    async function postDataToSheet(sectionName, payload) {
+      // Reference to status elements
+      const statusBar = document.getElementById('connectionStatusBar');
+      const statusSpan = statusBar.querySelector('span');
+      
+      if (!CONFIG.enableGoogleSheets || CONFIG.localModeOnly) {
+        if (CONFIG.localModeOnly) {
+          console.log(`Using local storage only mode: ${sectionName} data saved locally`);
+        } else {
+          console.log("Google Sheets integration is disabled");
+        }
+        return { result: "local_only" };
+      }
+
+      try {
+        const data = {
+          section: sectionName,
+          payload: payload
+        };
+        
+        if (CONFIG.debugMode) {
+          console.log("Posting data to Google Sheets:", sectionName);
+        }
+        
+        // Briefly indicate syncing
+        const originalText = statusSpan.innerHTML;
+        statusSpan.innerHTML = `⏳ Syncing ${sectionName}...`;
+        
+        // Create and submit the form in an iframe
+        const result = await new Promise((resolve, reject) => {
+          // Create a unique ID for this request
+          const requestId = 'req_' + Date.now();
+          
+          // Create a form to submit the data
+          const form = document.createElement('form');
+          form.method = 'POST';
+          form.action = CONFIG.googleSheetsApiUrl;
+          form.target = 'hidden_iframe_' + requestId;
+          form.style.display = 'none';
+          
+          // Add the data as a hidden input
+          const input = document.createElement('input');
+          input.type = 'hidden';
+          input.name = 'data';
+          input.value = JSON.stringify(data);
+          form.appendChild(input);
+          
+          // Create a hidden iframe to receive the response
+          const iframe = document.createElement('iframe');
+          iframe.name = 'hidden_iframe_' + requestId;
+          iframe.id = 'hidden_iframe_' + requestId;
+          iframe.style.display = 'none';
+          
+          // Add elements to the DOM
+          document.body.appendChild(iframe);
+          document.body.appendChild(form);
+          
+          // Handle completion
+          const cleanupAndResolve = (status, message) => {
+            // Clean up DOM elements
+            try {
+              document.body.removeChild(form);
+              document.body.removeChild(iframe);
+            } catch (e) {
+              console.warn('Cleanup error:', e);
+            }
+            
+            resolve({
+              result: status,
+              message: message
+            });
+          };
+          
+          // Set a timeout to handle no response
+          const timeoutId = setTimeout(() => {
+            cleanupAndResolve('success', 'Request completed (presumed successful)');
+          }, 5000);
+          
+          // Try to listen for iframe load
+          iframe.onload = () => {
+            clearTimeout(timeoutId);
+            // We assume success since the form was submitted
+            console.log("Form submission to Google Sheets completed");
+            cleanupAndResolve('success', 'Data saved to Google Sheets');
+          };
+          
+          // Submit the form
+          try {
+            form.submit();
+            console.log("Form submitted to Google Sheets");
+          } catch (submitError) {
+            clearTimeout(timeoutId);
+            cleanupAndResolve('error', 'Form submission error: ' + submitError.message);
+          }
+        });
+        
+        // Restore original status after successful sync
+        if (result.result === "success") {
+          statusSpan.innerHTML = originalText;
+        }
+        
+        return result;
+      } catch (error) {
+        console.error("Error posting data to Google Sheet:", error);
+        
+        // Check if this might be a CORS error
+        if (error.message && (
+            error.message.includes('CORS') || 
+            error.message.includes('blocked by policy') ||
+            error.message.includes('cross-origin')
+        )) {
+          CONFIG.localModeOnly = true;
+          console.warn("CORS error detected. Switching to local storage only mode.");
+          
+          // Update UI to show local mode
+          statusBar.style.background = '#e67e22';
+          statusSpan.innerHTML = '⚠ Using Local Storage Only - CORS Issue';
+          document.getElementById('toggleSyncMode').textContent = 'Try Google Sheets';
+        }
+        
+        return { result: "error", error: error.toString() };
+      }
+    }
+
+    /* -------------------------
+       Save Section Data (Auto-Save & Return)
+       ------------------------- */
+    async function saveSection(sectionName) {
+      let payload = {};
+      
+      try {
+        switch(sectionName) {
+          case 'medications':
+            payload = { records: medicationRecords };
+            localStorage.setItem('medicationRecords', JSON.stringify(medicationRecords));
+            break;
+          case 'bowelMovements':
+            bmRecord = {
+              type: document.getElementById('bmSelect').value,
+              color: document.getElementById('bmColor').value,
+              notes: document.getElementById('bmNotes').value,
+              timestamp: new Date().toLocaleTimeString()
+            };
+            payload = bmRecord;
+            localStorage.setItem('bmRecord', JSON.stringify(bmRecord));
+            break;
+          case 'drinkIntake':
+            drinkRecord.amount = document.getElementById('drinkAmount').value;
+            drinkRecord.type = document.getElementById('drinkType').value;
+            payload = drinkRecord;
+            localStorage.setItem('drinkRecord', JSON.stringify(drinkRecord));
+            break;
+          case 'meals':
+            mealsRecord.details = document.getElementById('mealDetails').value;
+            mealsRecord.type = document.getElementById('mealType').value;
+            mealsRecord.protein = document.getElementById('proteinAmount').value;
+            mealsRecord.appetite = document.getElementById('appetite').value;
+            payload = mealsRecord;
+            localStorage.setItem('mealsRecord', JSON.stringify(mealsRecord));
+            break;
+          case 'sleep':
+            sleepRecord.hours = document.getElementById('sleepHours').value;
+            sleepRecord.quality = document.getElementById('sleepQuality').value;
+            payload = sleepRecord;
+            localStorage.setItem('sleepRecord', JSON.stringify(sleepRecord));
+            break;
+          case 'activity':
+            activityRecord.minutes = document.getElementById('activityMinutes').value;
+            activityRecord.type = document.getElementById('activityType').value;
+            payload = activityRecord;
+            localStorage.setItem('activityRecord', JSON.stringify(activityRecord));
+            break;
+          case 'mental':
+            mentalRecord.alertStatus = document.querySelector('input[name="alertStatus"]:checked')?.value || "";
+            
+            // Add tremor assessment
+            mentalRecord.tremor = Array.from(document.querySelectorAll('input[name="tremor"]:checked'))
+              .map(input => input.value);
+              
+            // Add memory assessment
+            mentalRecord.memory = Array.from(document.querySelectorAll('input[name="memory"]:checked'))
+              .map(input => input.value);
+              
+            // Add neurological signs
+            mentalRecord.neuro = Array.from(document.querySelectorAll('input[name="neuro"]:checked'))
+              .map(input => input.value);
+              
+            payload = mentalRecord;
+            localStorage.setItem('mentalRecord', JSON.stringify(mentalRecord));
+            break;
+          case 'notes':
+            notesRecord = document.getElementById('notesText').value;
+            payload = { notes: notesRecord };
+            localStorage.setItem('notesRecord', notesRecord);
+            break;
+          case 'symptoms':
+            payload = { symptoms: physicalSymptoms };
+            localStorage.setItem('physicalSymptoms', JSON.stringify(physicalSymptoms));
+            break;
+          default:
+            break;
+        }
+
+        // Post data to Google Sheets
+        const result = await postDataToSheet(sectionName, payload);
+        if (result.result === "success") {
+          console.log(`Successfully saved ${sectionName} data to Google Sheets`);
+        }
+      } catch (error) {
+        console.error(`Error saving ${sectionName} data:`, error);
+      } finally {
+        closeSection();
+      }
+    }
+
+    /* -------------------------
+       Connection Diagnostics
+       ------------------------- */
+    async function runDiagnostics() {
+      const diagnosticsDiv = document.createElement('div');
+      diagnosticsDiv.style.position = 'fixed';
+      diagnosticsDiv.style.top = '10px';
+      diagnosticsDiv.style.right = '10px';
+      diagnosticsDiv.style.backgroundColor = '#1e1e1e';
+      diagnosticsDiv.style.border = '1px solid #555';
+      diagnosticsDiv.style.borderRadius = '8px';
+      diagnosticsDiv.style.padding = '15px';
+      diagnosticsDiv.style.width = '350px';
+      diagnosticsDiv.style.maxHeight = '80vh';
+      diagnosticsDiv.style.overflowY = 'auto';
+      diagnosticsDiv.style.zIndex = '1000';
+      diagnosticsDiv.style.boxShadow = '0 2px 10px rgba(0,0,0,0.5)';
+      diagnosticsDiv.innerHTML = `
+        <h3 style="margin-top:0;border-bottom:1px solid #555;padding-bottom:5px;">Connection Diagnostics</h3>
+        <div id="diagnosticsResults" style="font-family:monospace;font-size:12px;"></div>
+        <div style="margin-top:10px;display:flex;gap:5px;">
+          <button id="closeDiagnostics" style="flex:1;background:#e74c3c;border:none;padding:5px;border-radius:4px;color:white;cursor:pointer;">Close</button>
+          <button id="testHttpbin" style="flex:1;background:#3498db;border:none;padding:5px;border-radius:4px;color:white;cursor:pointer;">Test Httpbin</button>
+          <button id="testAppScript" style="flex:1;background:#2ecc71;border:none;padding:5px;border-radius:4px;color:white;cursor:pointer;">Test Apps Script</button>
+        </div>
+        <div style="margin-top:10px;">
+          <input id="customEndpoint" type="text" placeholder="Enter custom endpoint to test" style="width:100%;padding:5px;box-sizing:border-box;background:#2c2c2c;border:1px solid #555;color:#e0e0e0;border-radius:4px;">
+          <button id="testCustom" style="width:100%;margin-top:5px;background:#9b59b6;border:none;padding:5px;border-radius:4px;color:white;cursor:pointer;">Test Custom Endpoint</button>
+        </div>
+      `;
+      
+      document.body.appendChild(diagnosticsDiv);
+      
+      const resultsDiv = document.getElementById('diagnosticsResults');
+      
+      document.getElementById('closeDiagnostics').addEventListener('click', () => {
+        document.body.removeChild(diagnosticsDiv);
+      });
+      
+      document.getElementById('testHttpbin').addEventListener('click', async () => {
+        resultsDiv.innerHTML += `<div style="margin:5px 0;border-bottom:1px dashed #555;padding-bottom:5px;">Testing httpbin.org POST...</div>`;
+        try {
+          const response = await fetch('https://httpbin.org/post', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({test: 'connection'})
+          });
+          
+          const data = await response.json();
+          resultsDiv.innerHTML += `<div style="color:#2ecc71;">✓ Httpbin test successful!</div>`;
+          resultsDiv.innerHTML += `<div style="max-height:100px;overflow:auto;background:#2c2c2c;padding:5px;margin:5px 0;border-radius:4px;">${JSON.stringify(data, null, 2)}</div>`;
+        } catch (error) {
+          resultsDiv.innerHTML += `<div style="color:#e74c3c;">✗ Httpbin test failed: ${error.message}</div>`;
+        }
+      });
+      
+      document.getElementById('testAppScript').addEventListener('click', async () => {
+        resultsDiv.innerHTML += `<div style="margin:5px 0;border-bottom:1px dashed #555;padding-bottom:5px;">Testing Google Apps Script URL...</div>`;
+        
+        // First test with GET request
+        try {
+          resultsDiv.innerHTML += `<div>Testing GET request...</div>`;
+          const getResponse = await fetch(CONFIG.googleSheetsApiUrl);
+          const getStatus = getResponse.status;
+          resultsDiv.innerHTML += `<div>GET Status: ${getStatus}</div>`;
+          
+          try {
+            const getData = await getResponse.json();
+            resultsDiv.innerHTML += `<div style="color:#2ecc71;">✓ GET response parsed as JSON</div>`;
+            resultsDiv.innerHTML += `<div style="max-height:100px;overflow:auto;background:#2c2c2c;padding:5px;margin:5px 0;border-radius:4px;">${JSON.stringify(getData, null, 2)}</div>`;
+          } catch (e) {
+            const getText = await getResponse.text();
+            resultsDiv.innerHTML += `<div style="color:#e74c3c;">✗ GET response is not valid JSON</div>`;
+            resultsDiv.innerHTML += `<div style="max-height:100px;overflow:auto;background:#2c2c2c;padding:5px;margin:5px 0;border-radius:4px;white-space:pre-wrap;font-size:10px;">${getText.substring(0, 500)}${getText.length > 500 ? '...' : ''}</div>`;
+          }
+        } catch (error) {
+          resultsDiv.innerHTML += `<div style="color:#e74c3c;">✗ GET request failed: ${error.message}</div>`;
+        }
+        
+        // Then test with POST request
+        try {
+          resultsDiv.innerHTML += `<div>Testing POST request...</div>`;
+          const postResponse = await fetch(CONFIG.googleSheetsApiUrl, {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({test: 'connection'})
+          });
+          
+          const postStatus = postResponse.status;
+          resultsDiv.innerHTML += `<div>POST Status: ${postStatus}</div>`;
+          
+          try {
+            const postData = await postResponse.json();
+            resultsDiv.innerHTML += `<div style="color:#2ecc71;">✓ POST response parsed as JSON</div>`;
+            resultsDiv.innerHTML += `<div style="max-height:100px;overflow:auto;background:#2c2c2c;padding:5px;margin:5px 0;border-radius:4px;">${JSON.stringify(postData, null, 2)}</div>`;
+          } catch (e) {
+            const postText = await postResponse.text();
+            resultsDiv.innerHTML += `<div style="color:#e74c3c;">✗ POST response is not valid JSON</div>`;
+            resultsDiv.innerHTML += `<div style="max-height:100px;overflow:auto;background:#2c2c2c;padding:5px;margin:5px 0;border-radius:4px;white-space:pre-wrap;font-size:10px;">${postText.substring(0, 500)}${postText.length > 500 ? '...' : ''}</div>`;
+          }
+        } catch (error) {
+          resultsDiv.innerHTML += `<div style="color:#e74c3c;">✗ POST request failed: ${error.message}</div>`;
+        }
+        
+        resultsDiv.innerHTML += `<div style="margin:5px 0;border-bottom:1px dashed #555;padding-bottom:5px;">URL being tested: ${CONFIG.googleSheetsApiUrl}</div>`;
+      });
+      
+      document.getElementById('testCustom').addEventListener('click', async () => {
+        const customUrl = document.getElementById('customEndpoint').value;
+        if (!customUrl) {
+          resultsDiv.innerHTML += `<div style="color:#e74c3c;">Please enter a URL to test</div>`;
+          return;
+        }
+        
+        resultsDiv.innerHTML += `<div style="margin:5px 0;border-bottom:1px dashed #555;padding-bottom:5px;">Testing custom URL: ${customUrl}</div>`;
+        
+        try {
+          resultsDiv.innerHTML += `<div>Testing GET request...</div>`;
+          const getResponse = await fetch(customUrl);
+          const getStatus = getResponse.status;
+          resultsDiv.innerHTML += `<div>GET Status: ${getStatus}</div>`;
+          
+          try {
+            const getData = await getResponse.json();
+            resultsDiv.innerHTML += `<div style="color:#2ecc71;">✓ GET response parsed as JSON</div>`;
+            resultsDiv.innerHTML += `<div style="max-height:100px;overflow:auto;background:#2c2c2c;padding:5px;margin:5px 0;border-radius:4px;">${JSON.stringify(getData, null, 2)}</div>`;
+          } catch (e) {
+            const getText = await getResponse.text();
+            resultsDiv.innerHTML += `<div style="color:#e74c3c;">✗ GET response is not valid JSON</div>`;
+            resultsDiv.innerHTML += `<div style="max-height:100px;overflow:auto;background:#2c2c2c;padding:5px;margin:5px 0;border-radius:4px;white-space:pre-wrap;font-size:10px;">${getText.substring(0, 500)}${getText.length > 500 ? '...' : ''}</div>`;
+          }
+        } catch (error) {
+          resultsDiv.innerHTML += `<div style="color:#e74c3c;">✗ GET request failed: ${error.message}</div>`;
+        }
+      });
+    }
+
+    /* -------------------------
+       Add Diagnostics Button
+       ------------------------- */
+    function addDiagnosticsButton() {
+      const button = document.createElement('button');
+      button.innerHTML = 'Diagnostics';
+      button.style.position = 'fixed';
+      button.style.bottom = '10px';
+      button.style.right = '10px';
+      button.style.zIndex = '1000';
+      button.style.backgroundColor = '#3498db';
+      button.style.color = 'white';
+      button.style.border = 'none';
+      button.style.borderRadius = '4px';
+      button.style.padding = '8px 12px';
+      button.style.cursor = 'pointer';
+      button.style.boxShadow = '0 2px 5px rgba(0,0,0,0.3)';
+      button.addEventListener('click', runDiagnostics);
+      document.body.appendChild(button);
+    }
+
+    /* -------------------------
+       Initialization
+       ------------------------- */
+    window.addEventListener('DOMContentLoaded', () => {
+      document.getElementById('dashboard').style.display = 'flex';
+      
+      // Set up the sync toggle button
+      document.getElementById('toggleSyncMode').addEventListener('click', toggleSyncMode);
+      
+      // Check if Chart.js is loaded
+      if (checkChartJsLoaded()) {
+        // Make sure all chart canvases are properly accessible
+        setTimeout(() => {
+          try {
+            initCharts();
+            console.log("Charts initialized successfully");
+          } catch (e) {
+            console.error("Error initializing charts:", e);
+            // Try again with a delay in case DOM elements weren't fully rendered
+            setTimeout(initCharts, 500);
+          }
+        }, 100);
+      }
+      
+      generateMedTable();
+      
+      // Add diagnostics button
+      addDiagnosticsButton();
+      
+      // Check for existing data
+      const hasExistingData = 
+        (localStorage.getItem('medicationRecords') && JSON.parse(localStorage.getItem('medicationRecords')).length > 0) ||
+        localStorage.getItem('bmRecord') || 
+        localStorage.getItem('drinkRecord') ||
+        localStorage.getItem('mealsRecord');
+      
+      if (hasExistingData) {
+        console.log("Found existing data in local storage");
+      }
+    });
+  </script>
+</body>
+</html>
