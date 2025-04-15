@@ -11,12 +11,15 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <!-- Add Questrial and Inconsolata fonts -->
+  <link href="https://fonts.googleapis.com/css2?family=Questrial&family=Inconsolata:wght@400;600&display=swap"
+    rel="stylesheet">
   <!-- External CSS file -->
   <link rel="stylesheet" href="styles.css">
   <!-- Chart.js for doughnut graphs - Use our local copy -->
   <script src="chart.min.js"></script>
   <style>
-    /* Modern design system with Inter font, updated color palette */
+    /* Modern design system with Questrial font, updated color palette */
     :root {
       --bg-dark: #0f172a;
       --bg-card: #1e293b;
@@ -33,10 +36,12 @@
       --shadow-sm: 0 1px 2px rgba(0,0,0,0.1);
       --shadow-md: 0 4px 6px -1px rgba(0,0,0,0.2);
       --shadow-lg: 0 10px 15px -3px rgba(0,0,0,0.3);
+      --font-primary: 'Questrial', system-ui, -apple-system, sans-serif;
+      --font-mono: 'Inconsolata', monospace;
     }
     
     body {
-      font-family: 'Inter', system-ui, -apple-system, sans-serif;
+      font-family: var(--font-primary);
       background: var(--bg-dark);
       color: var(--color-text);
       margin: 0;
@@ -48,6 +53,7 @@
     h1, h2, h3 {
       font-weight: 600;
       letter-spacing: -0.02em;
+      font-family: var(--font-primary);
     }
     
     h1 {
@@ -123,6 +129,8 @@
     .chart-label span {
       display: block;
       margin-top: 2px;
+      font-family: var(--font-mono);
+      font-weight: 600;
     }
     
     .chart-label i {
@@ -251,6 +259,7 @@
       border: 1px solid rgba(255,255,255,0.1);
       text-align: center;
       vertical-align: middle;
+      font-family: var(--font-mono);
     }
     
     th { 
@@ -263,6 +272,7 @@
       font-size: 0.8em;
       color: var(--color-text-muted);
       margin-top: 5px;
+      font-family: var(--font-mono);
     }
     
     select, input[type="text"], input[type="time"], input[type="number"], textarea {
@@ -614,6 +624,71 @@
     
     .section-header h2 {
       margin: 0;
+      font-family: var(--font-primary);
+      font-weight: 400;
+      letter-spacing: 0.02em;
+    }
+    
+    /* Typography enhancements */
+    .info-card {
+      font-family: var(--font-primary);
+      line-height: 1.6;
+    }
+    
+    .info-card strong {
+      font-weight: 600;
+      letter-spacing: 0.01em;
+    }
+    
+    .input-group label {
+      font-family: var(--font-primary);
+      font-weight: 500;
+    }
+    
+    input[type="text"], 
+    input[type="time"], 
+    input[type="number"],
+    input[type="radio"],
+    input[type="checkbox"],
+    select, 
+    textarea, 
+    button.save-btn {
+      font-family: var(--font-mono);
+    }
+    
+    textarea {
+      font-size: 14px;
+      line-height: 1.5;
+    }
+    
+    /* Numeric values and data should use Inconsolata */
+    .chart-label span,
+    #totalProgressDisplay,
+    button.save-btn,
+    .checklist-container ol li strong {
+      font-family: var(--font-mono);
+      font-feature-settings: "tnum";
+    }
+    
+    /* Section-specific styling */
+    #symptomList li {
+      font-family: var(--font-primary);
+    }
+    
+    #symptomList li strong,
+    #symptomList li em {
+      font-family: var(--font-mono);
+    }
+    
+    /* Buttons */
+    .btn-back {
+      font-family: var(--font-primary);
+      font-weight: 500;
+    }
+    
+    /* Improve readability of footer */
+    .footer {
+      font-family: var(--font-primary);
     }
     
     /* Color variants for sections based on dashboard colors */
