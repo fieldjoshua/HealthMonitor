@@ -4297,6 +4297,105 @@
                         archive: JSON.parse(localStorage.getItem('healthArchive') || '{}')
                       };
 
+                      const dataStr = JSON.stringify(allData, null, 2);
+                      const dataUri = 'data:application/json;charset=utf-8,' + encodeURIComponent(dataStr);
+
+                      const exportFileDefaultName = 'health_data_export_' + new Date().toISOString().slice(0, 10) + '.json';
+
+                      const linkElement = document.createElement('a');
+                      linkElement.setAttribute('href', dataUri);
+                      linkElement.setAttribute('download', exportFileDefaultName);
+                      linkElement.click();
+                    } catch (error) {
+                      console.error("Error exporting data:", error);
+                      alert("Error exporting data: " + error.message);
+                    }
+                  }
+                }
+
+                // Replace the existing addDiagnosticsButton function with the new admin section
+                function addDiagnosticsButton() {
+                  addAdminSection();
+                }
+
+                // At page initialization, set the connection status display correctly
+                window.addEventListener('DOMContentLoaded', () => {
+                  document.getElementById('dashboard').style.display = 'flex';
+                  
+                  // Set up the sync toggle button and update initial display
+                  document.getElementById('toggleSyncMode').addEventListener('click', toggleSyncMode);
+                  
+                  // Start with a connection test if Google Sheets is enabled
+                  if (!CONFIG.localModeOnly && CONFIG.enableGoogleSheets) {
+                    const statusBar = document.getElementById('connectionStatusBar');
+                    statusBar.style.background = '#3498db';
+                    statusBar.querySelector('span').innerHTML = '⏳ Testing Google Sheets Connection...';
+
+                    testGoogleSheetsConnection().then(result => {
+                      if (result.result === "error" || result.result === "local_only") {
+                        CONFIG.localModeOnly = true;
+                        const statusBar = document.getElementById('connectionStatusBar');
+                        statusBar.style.background = '#e67e22';
+                        statusBar.querySelector('span').innerHTML = '📱 Using Local Storage Mode';
+                        document.getElementById('toggleSyncMode').textContent = 'Enable Google Sheets';
+                      } else {
+                        const statusBar = document.getElementById('connectionStatusBar');
+                        statusBar.style.background = '#27ae60';
+                        statusBar.querySelector('span').innerHTML = '☁️ Using Google Sheets Sync';
+                        document.getElementById('toggleSyncMode').textContent = 'Use Local Storage';
+                      }
+                    });
+                  } else if (CONFIG.localModeOnly) {
+                    const statusBar = document.getElementById('connectionStatusBar');
+                    statusBar.style.background = '#e67e22';
+                    statusBar.querySelector('span').innerHTML = '📱 Using Local Storage Mode';
+                    document.getElementById('toggleSyncMode').textContent = 'Enable Google Sheets';
+                  }
+                  
+                  // Chart initialization with better error handling
+                  console.log("Dashboard loaded, initializing charts with retry mechanism...");
+                  if (checkChartJsLoaded()) {
+                    // Start the chart initialization with retry mechanism
+                    setTimeout(() => initChartsWithRetry(0), 100);
+                  }
+                  
+                  generateMedTable();
+                  
+                  // Add admin section instead of simple diagnostics button
+                  addAdminSection();
+                  
+                  // Check for existing data
+                  const hasExistingData = 
+                    (localStorage.getItem('medicationRecords') && JSON.parse(localStorage.getItem('medicationRecords')).length > 0) ||
+                    localStorage.getItem('bmRecord') || 
+                    localStorage.getItem('drinkRecord') ||
+                    localStorage.getItem('mealsRecord');
+                  
+                  if (hasExistingData) {
+                    console.log("Found existing data in local storage");
+                  }
+                });
+
+                // Connect the original initCharts function to our new retry function
+                function initCharts() {
+                  console.log("Original initCharts called, redirecting to retry mechanism");
+                  initChartsWithRetry(0);
+                }
+              </script>
+    <!-- Footer with logo and copyright -->
+    <footer class="footer">
+      <div class="logo-container">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200">
+          <g fill="#94a3b8">
+            <path d="M20,20 L180,20 L180,180 L20,180 L20,20 Z" fill="none" stroke="#94a3b8" stroke-width="2" />
+            <path d="M60,60 L140,60 L140,140 L60,140 L60,60 Z" fill="none" stroke="#94a3b8" stroke-width="2" />
+            <path d="M20,20 L120,160" stroke="#94a3b8" stroke-width="2" />
+            <path d="M180,180 L80,40" stroke="#94a3b8" stroke-width="2" />
+            <text x="50" y="110" font-family="Inter, sans-serif" font-weight="bold" font-size="12">FORRESTER</text>
+            <text x="70" y="130" font-family="Inter, sans-serif" font-weight="bold" font-size="12">FIELD</text>
+          </g>
+        </svg>
+      </div>
       <div>© ForresterField, 2025</div>
     </footer>
   </body>
